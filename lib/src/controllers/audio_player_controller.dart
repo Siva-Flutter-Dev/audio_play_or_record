@@ -7,6 +7,7 @@ class AudioPlayerController {
   Stream<Duration?> get durationStream => _player.durationStream;
   bool get isPlaying => _player.playing;
 
+
   Future<void> load(String path, {bool isUrl = false}) async {
     if (isUrl) {
       await _player.setUrl(path);
@@ -18,6 +19,9 @@ class AudioPlayerController {
 
   void play() => _player.play();
   void pause() => _player.pause();
+  void volume() => _player.setVolume(1.0);
+
+  void speed(double speed) => _player.setSpeed(speed);
 
   void seek(Duration d) => _player.seek(d);
 
