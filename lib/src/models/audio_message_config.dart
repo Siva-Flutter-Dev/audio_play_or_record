@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:flutter/material.dart';
+
 enum WaveStyle { whatsapp, bars, dots, line }
 
 class AudioMessageConfig {
@@ -27,9 +29,9 @@ class AudioMessageConfig {
     this.showPlaybackSpeed = false,
     this.enableSeek = true,
     this.showDuration = true,
-    this.activeWaveColor = const Color(0xFF25D366),
-    this.inactiveWaveColor = const Color(0xFFB0B0B0),
-    this.recordingWaveColor = const Color(0xFFE53935),
+    this.activeWaveColor = Colors.blue,
+    this.inactiveWaveColor = Colors.black12,
+    this.recordingWaveColor = Colors.red,
     this.time = '',
     this.isSeen = false,
   });

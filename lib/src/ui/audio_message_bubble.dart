@@ -13,8 +13,6 @@ class AudioMessage extends StatefulWidget {
   final bool isSender;
   final double waveWidth;
   final Color iconColor;
-  final Color runningWave;
-  final Color backgroundWave;
   final Color backgroundColor;
   final AudioMessageConfig config;
 
@@ -26,8 +24,6 @@ class AudioMessage extends StatefulWidget {
     this.config = const AudioMessageConfig(),
     this.profileImageUrl,
     this.iconColor=Colors.black,
-    this.runningWave=Colors.blue,
-    this.backgroundWave=Colors.black12,
     this.backgroundColor=Colors.white,
   });
 
@@ -300,7 +296,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
         // Main avatar
         CircleAvatar(
           radius: 18,
-          backgroundColor: widget.runningWave,
+          backgroundColor: widget.config.activeWaveColor,
           backgroundImage: (isUrl && widget.profileImageUrl != null)
               ? NetworkImage(widget.profileImageUrl!)
               : null,
@@ -319,7 +315,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
           right: 0,
           child: CircleAvatar(
             radius: 7,
-            backgroundColor: widget.runningWave, // WhatsApp mic bubble color
+            backgroundColor: widget.config.activeWaveColor, // WhatsApp mic bubble color
             child: Icon(
               Icons.mic,
               size: 10,
