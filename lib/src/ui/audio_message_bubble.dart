@@ -36,7 +36,7 @@ class AudioMessage extends StatefulWidget {
 class _WhatsAppAudioMessageState extends State<AudioMessage> {
   final _player = AudioPlayerController();
   List<double> _amps = [];
-  double _progress = 0;
+  double progress = 0;
   Duration? _totalDuration;
   Duration _currentPosition = Duration.zero;
 
@@ -55,22 +55,6 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
 
   bool _isUrl(String path) {
     return path.startsWith('http://') || path.startsWith('https://');
-  }
-
-  double _speed = 1.0;
-
-  void _toggleSpeed() {
-    setState(() {
-      if (_speed == 1.0) {
-        _speed = 1.5;
-      } else if (_speed == 1.5) {
-        _speed = 2.0;
-      }
-      else {
-        _speed = 1.0;
-      }
-    });
-    _player.speed(_speed);
   }
 
 
@@ -107,7 +91,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
       setState(() {
         _currentPosition = pos;
         if (_totalDuration != null) {
-          _progress = pos.inMilliseconds / _totalDuration!.inMilliseconds;
+          progress = pos.inMilliseconds / _totalDuration!.inMilliseconds;
         }
 
         if (_totalDuration != null &&
@@ -116,7 +100,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
           _player.pause();
           _player.seek(Duration.zero);
           _currentPosition = Duration.zero;
-          _progress = 0;
+          progress = 0;
         }
       });
     });
@@ -143,7 +127,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
 
     setState(() {
       _currentPosition = target;
-      _progress = percent;
+      progress = percent;
     });
   }
 
@@ -159,13 +143,11 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final textScale = MediaQuery.of(context).textScaleFactor;
 
     // Responsive sizes
     final bubblePaddingHorizontal = screenWidth * 0.03; // 3% of width
     final bubblePaddingVertical = screenHeight * 0.008; // ~1% of height
     final avatarSize = screenWidth * 0.09; // 9% of width
-    final avatarOffset = avatarSize * 0.2; // offset for overlap
     final waveformHeight = screenHeight * 0.05; // 5% of height
 
     return Row(
@@ -294,7 +276,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                             Text(
                               _formatDuration(_currentPosition),
                               style: TextStyle(
-                                fontSize: 10 * textScale,
+                                fontSize: MediaQuery.textScalerOf(context).scale(11),
                                 color: widget.iconColor,
                               ),
                             ),
@@ -302,7 +284,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                               Text(
                                 _formatDuration(_totalDuration!),
                                 style: TextStyle(
-                                  fontSize: 10 * textScale,
+                                  fontSize: MediaQuery.textScalerOf(context).scale(11),
                                   color: widget.iconColor,
                                 ),
                               ),

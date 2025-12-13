@@ -20,7 +20,7 @@ class RecordMicButton extends StatefulWidget {
   final TextEditingController? textController;
   final InputDecoration? textFieldDecoration;
   final Widget? micIcon;
-  String? audioPath;
+  final String? audioPath;
   final Widget? stopIcon;
   final Widget? sendIcon;
   final double? buttonRadius;
@@ -33,7 +33,7 @@ class RecordMicButton extends StatefulWidget {
   final Color backgroundAudio;
   final EdgeInsets? buttonPadding;
 
-  RecordMicButton({
+  const RecordMicButton({
     super.key,
     required this.onRecorded,
     required this.hasMicPermission,
@@ -292,7 +292,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
         if (_state == RecordState.recording) {
           return AnimatedBuilder(
             animation: _waveController,
-            builder: (_, __) {
+            builder: (_, _) {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: amplitudes.map((amp) {
@@ -337,7 +337,6 @@ class _RecordMicButtonState extends State<RecordMicButton>
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final showSend = _controller.text.isNotEmpty || widget.isSendEnable;
-    final isPlaying = _audioController?.isPlaying ?? false;
 
     return SizedBox(
       height: widget.height,

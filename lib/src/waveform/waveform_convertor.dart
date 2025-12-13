@@ -1,6 +1,3 @@
-import 'dart:math';
-import 'package:just_waveform/just_waveform.dart';
-
 class WaveformConverter {
   static List<double> toAmplitudes(
       List<double> samples,

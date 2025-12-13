@@ -102,7 +102,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
           final bars = (c.maxWidth / 6).floor();
           return AnimatedBuilder(
             animation: _waveController,
-            builder: (_, __) {
+            builder: (_, _) {
               return Row(
                 mainAxisAlignment: _align(),
                 children: List.generate(bars, (i) {
