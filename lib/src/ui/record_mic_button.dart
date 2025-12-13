@@ -179,6 +179,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
     await _recorder.cancel();
     setState((){
       widget.onDelete.call();
+      _audioController=null;
       _state = RecordState.idle;
     });
   }
