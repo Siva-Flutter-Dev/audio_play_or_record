@@ -117,104 +117,147 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: widget.isSender ? Colors.green[50] : Colors.grey[200],
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Align(
-        alignment:
-        widget.isSender ? Alignment.centerRight : Alignment.centerLeft,
-        child: Row(
-          mainAxisAlignment: widget.isSender
-              ? MainAxisAlignment.end
-              : MainAxisAlignment.start,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: widget.isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            if (!widget.isSender) _buildAvatar(),
+            if (!widget.isSender) ...[
+              _buildAvatar(),
+              const SizedBox(width: 4),
+            ],
 
-            CustomPaint(
-              painter: BubblePainter(
-                widget.isSender,
-                widget.isSender ? Colors.green[50]! : Colors.grey[200]!,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        _player.isPlaying
-                            ? Icons.pause
-                            : Icons.play_arrow,
-                      ),
-                      onPressed: () =>
-                      _player.isPlaying ? _player.pause() : _player.play(),
+            Flexible(
+              child: Stack(
+                children: [
+                  CustomPaint(
+                    painter: BubblePainter(
+                      widget.isSender,
+                      widget.isSender ? Colors.green[50]! : Colors.grey[200]!,
                     ),
-
-                    if (widget.config.showPlaybackSpeed)
-                      GestureDetector(
-                        onTap: _toggleSpeed,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 6),
-                          child: Text(
-                            '${_speed}x',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // waveform row
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: Icon(_player.isPlaying ? Icons.pause : Icons.play_arrow),
+                                onPressed: () => _player.isPlaying ? _player.pause() : _player.play(),
+                              ),
+                              Expanded(
+                                child: SizedBox(
+                                  height: 40,
+                                  child: CustomPaint(
+                                    painter: WaveformPainter(
+                                      amplitudes: _amps,
+                                      progress: _progress,
+                                      active: widget.config.activeWaveColor,
+                                      inactive: widget.config.inactiveWaveColor,
+                                      barWidth: widget.config.barWidth,
+                                      spacing: widget.config.spacing,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              if (widget.config.showPlaybackSpeed)
+                                GestureDetector(
+                                  onTap: _toggleSpeed,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                                    child: Text('${_speed}x',
+                                        style: const TextStyle(
+                                            fontSize: 12, fontWeight: FontWeight.bold)),
+                                  ),
+                                ),
+                            ],
                           ),
-                        ),
-                      ),
-
-                    SizedBox(
-                      width: 120,
-                      height: 40,
-                      child: CustomPaint(
-                        painter: WaveformPainter(
-                          amplitudes: _amps,
-                          progress: _progress,
-                          active: widget.config.activeWaveColor,
-                          inactive: widget.config.inactiveWaveColor,
-                          barWidth: widget.config.barWidth,
-                          spacing: widget.config.spacing,
-                        ),
+                          const SizedBox(height: 4),
+                          // duration + status
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _formatDuration(_currentPosition),
+                                style: const TextStyle(fontSize: 10, color: Colors.grey),
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (_totalDuration != null)
+                                    Text(
+                                      _formatDuration(_totalDuration!),
+                                      style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                    ),
+                                  const SizedBox(width: 4),
+                                  if (widget.isSender) _buildStatus(),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
 
-            if (widget.isSender) _buildAvatar(),
+            if (widget.isSender) ...[
+              const SizedBox(width: 4),
+              _buildAvatar(),
+            ],
           ],
-        ),
-      ),
+        )
+
+      ],
     );
   }
+
 
   Widget _buildAvatar() {
     final isUrl = _isUrl(widget.audioPath);
 
-    // 🟢 Online audio → show profile pic
-    if (isUrl && widget.profileImageUrl != null) {
-      return CircleAvatar(
-        radius: 18,
-        backgroundImage: NetworkImage(widget.profileImageUrl!),
-        backgroundColor: Colors.grey[300],
-      );
-    }
+    return Stack(
+      alignment: Alignment.bottomRight,
+      children: [
+        // Main avatar
+        CircleAvatar(
+          radius: 18,
+          backgroundColor: Colors.grey[300],
+          backgroundImage: (isUrl && widget.profileImageUrl != null)
+              ? NetworkImage(widget.profileImageUrl!)
+              : null,
+          child: (!isUrl || widget.profileImageUrl == null)
+              ? Icon(
+            Icons.person,
+            size: 18,
+            color: Colors.grey[700],
+          )
+              : null,
+        ),
 
-    // 🎤 Local audio → default WhatsApp mic
-    return CircleAvatar(
-      radius: 18,
-      backgroundColor: Colors.grey[300],
-      child: Icon(
-        Icons.mic,
-        size: 18,
-        color: Colors.grey[700],
-      ),
+        // Small mic overlay
+        Positioned(
+          bottom: 0,
+          right: 0,
+          child: CircleAvatar(
+            radius: 7,
+            backgroundColor: Colors.green, // WhatsApp mic bubble color
+            child: Icon(
+              Icons.mic,
+              size: 10,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
