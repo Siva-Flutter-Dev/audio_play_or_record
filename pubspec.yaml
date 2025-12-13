@@ -4,7 +4,6 @@ description: "A Flutter package for recording, playing audio and displaying
 version: 1.0.0
 homepage: https://github.com/Siva-Flutter-Dev/audio_play_or_record
 repository: https://github.com/Siva-Flutter-Dev/audio_play_or_record
-publish_to: 'https://pub.dev'
 documentation: https://github.com/Siva-Flutter-Dev/audio_play_or_record#readme
 
 environment:
