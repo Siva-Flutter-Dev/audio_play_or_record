@@ -107,7 +107,18 @@ class _RecordMicButtonState extends State<RecordMicButton>
       if (mounted) setState(() => _total = d ?? Duration.zero);
     });
     _audioController?.positionStream.listen((p) {
-      if (mounted) setState(() => _position = p);
+      if (mounted) {
+        setState((){
+        _position = p;
+        if (_total != null &&
+            p >= _total! &&
+            _audioController!.isPlaying) {
+          _audioController?.pause();
+          _audioController?.seek(Duration.zero);
+          _position = Duration.zero;
+        }
+      });
+      }
     });
   }
 

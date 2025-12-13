@@ -103,6 +103,15 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
         if (_totalDuration != null) {
           _progress = pos.inMilliseconds / _totalDuration!.inMilliseconds;
         }
+
+        if (_totalDuration != null &&
+            pos >= _totalDuration! &&
+            _player.isPlaying) {
+          _player.pause();
+          _player.seek(Duration.zero);
+          _currentPosition = Duration.zero;
+          _progress = 0;
+        }
       });
     });
 
