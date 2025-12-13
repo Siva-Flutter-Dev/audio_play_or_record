@@ -17,7 +17,7 @@ class RecordMicButton extends StatefulWidget {
   final TextEditingController? textController;
   final InputDecoration? textFieldDecoration;
   final Widget? micIcon;
-  final String? audioPath;
+  String? audioPath;
   final Widget? stopIcon;
   final Widget? sendIcon;
   final double? buttonRadius;
@@ -26,7 +26,7 @@ class RecordMicButton extends StatefulWidget {
   final Color? sendColor;
   final EdgeInsets? buttonPadding;
 
-  const RecordMicButton({
+  RecordMicButton({
     super.key,
     required this.onRecorded,
     required this.hasMicPermission,
@@ -164,7 +164,10 @@ class _RecordMicButtonState extends State<RecordMicButton>
     _timer = null;
 
     await _recorder.cancel();
-    setState(() => _state = RecordState.idle);
+    setState((){
+      widget.audioPath=null;
+      _state = RecordState.idle;
+    });
   }
 
   @override
@@ -337,12 +340,12 @@ class _RecordMicButtonState extends State<RecordMicButton>
                   if (_audioController != null)
                     IconButton(
                       icon: Icon(
-                        isPlaying ? Icons.pause : Icons.play_arrow,
+                        _audioController!.isPlaying ? Icons.pause : Icons.play_arrow,
                         color: Colors.white,
                       ),
                       onPressed: () {
                         if (_audioController != null) {
-                          isPlaying
+                          _audioController!.isPlaying
                               ? _audioController!.pause()
                               : _audioController!.play();
                         }
