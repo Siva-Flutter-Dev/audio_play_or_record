@@ -27,41 +27,44 @@ Then run:
 
 `flutter pub get`
 
-🔐 Permissions (IMPORTANT)
-
-⚠️ This package does NOT request permissions automatically.
-The host application must handle permissions.
-
+🔐 Permissions
 ✅ Android
 
+```
 📍 android/app/src/main/AndroidManifest.xml
 
-`<uses-permission android:name="android.permission.RECORD_AUDIO"/>
-<uses-permission android:name="android.permission.INTERNET"/>`
-
+<uses-permission android:name="android.permission.RECORD_AUDIO"/>
+<uses-permission android:name="android.permission.INTERNET"/>
+```
 🍎 iOS
-
+```
 📍 ios/Runner/Info.plist
 
-`<key>NSMicrophoneUsageDescription</key>
-<string>This app needs microphone access to record audio messages.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>This app needs microphone access to record audio.</string>
 
 <key>NSAppTransportSecurity</key>
 <dict>
 <key>NSAllowsArbitraryLoads</key>
 <true/>
-</dict>`
+</dict>
+```
 
 🎯 Runtime Permission (Android)
 
-Request microphone permission at runtime:
-
-`import 'package:permission_handler/permission_handler.dart';
+Request microphone permission in the host app:
+```
+import 'package:permission_handler/permission_handler.dart';
 
 await Permission.microphone.request();
+```
+
+ℹ️ permission_handler is required only in the host app, not inside this package.
+
 
 🧱 Basic Usage
 🔊 Audio Message Player
+```
 AudioMessage(
 audioPath: path,
 config: AudioMessageConfig(
@@ -69,20 +72,23 @@ activeWaveColor: Colors.greenAccent,
 inactiveWaveColor: Colors.black26,
 ),
 )
+```
 
 🎤 Record Mic Button
+```
 RecordMicButton(
 hasMicPermission: true,
 onRecorded: (path) {
 print("Recorded file: $path");
 },
 onMessageSend: () {},
-)`
+)
+```
 
 🎨 Customization
 
 You can customize:
-
+```
 Waveform colors
 
 Bar width & spacing
@@ -92,7 +98,7 @@ Icons (mic, play, pause, delete)
 Button size & padding
 
 Recording behavior (tap / long-press / lock)
-
+```
 📱 Supported Platforms
 
 ✅ Android
@@ -100,7 +106,7 @@ Recording behavior (tap / long-press / lock)
 ✅ iOS
 
 🛠 Dependencies Used
-
+```
 * dart:io – For handling audio files and file system operations.
 
 * flutter/material – For UI widgets like buttons, icons, and layout.
@@ -108,9 +114,9 @@ Recording behavior (tap / long-press / lock)
 * path_provider – To access device directories for saving audio files.
 
 * permission_handler – Not included in the package; the host app must request microphone permission at runtime if needed.
+```
 
 📄 License
-
 ```
 MIT License
 
