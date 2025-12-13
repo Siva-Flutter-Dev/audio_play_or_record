@@ -7,12 +7,15 @@ import 'package:flutter/services.dart';
 
 class RecordMicButton extends StatefulWidget {
   final bool hasMicPermission;
+  final bool isSendEnable;
   final double? overlayWidth;
   final RecordButtonConfig config;
   final Function(String path) onRecorded;
+  final VoidCallback onMessageSend;
   final TextEditingController? textController;
   final InputDecoration? textFieldDecoration;
   final Widget? micIcon;
+  final String? audioPath;
   final Widget? stopIcon;
   final Widget? sendIcon;
   final double? buttonRadius; // size of the circle
@@ -25,6 +28,7 @@ class RecordMicButton extends StatefulWidget {
     super.key,
     required this.onRecorded,
     required this.hasMicPermission,
+    this.isSendEnable=false,
     this.config = const RecordButtonConfig(),
     this.overlayWidth,
     this.textController,
@@ -37,6 +41,8 @@ class RecordMicButton extends StatefulWidget {
     this.stopColor,
     this.sendColor,
     this.buttonPadding,
+    required this.onMessageSend,
+    this.audioPath,
   });
 
   @override
@@ -51,7 +57,6 @@ class _RecordMicButtonState extends State<RecordMicButton> {
   Offset _start = Offset.zero;
   Duration _duration = Duration.zero;
   Timer? _timer;
-  String? _audioPath;
 
   @override
   void initState() {
@@ -105,7 +110,6 @@ class _RecordMicButtonState extends State<RecordMicButton> {
     final path = await _recorder.stop();
     if (path != null && mounted) {
       setState(() {
-        _audioPath = path;
         _state = RecordState.idle;
       });
       widget.onRecorded(path);
@@ -134,7 +138,7 @@ class _RecordMicButtonState extends State<RecordMicButton> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final showSend = _controller.text.isNotEmpty;
+    final showSend = _controller.text.isNotEmpty || widget.isSendEnable;
 
     return SizedBox(
       height: 70,
@@ -143,13 +147,13 @@ class _RecordMicButtonState extends State<RecordMicButton> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            child: (_state != RecordState.idle || _audioPath != null)
+            child: (_state != RecordState.idle || widget.audioPath != null)
                 ? RecordingOverlay(
               width: widget.overlayWidth ?? width * 0.7,
               duration: _duration,
               direction: widget.config.waveDirection,
               showDelete: true,
-              audioPath: _audioPath,
+              audioPath: widget.audioPath,
               isRecording: _state == RecordState.recording,
               onDelete: _cancel,
             )
@@ -176,13 +180,7 @@ class _RecordMicButtonState extends State<RecordMicButton> {
           // 🎤 MIC / STOP / SEND BUTTON
           GestureDetector(
             onTap: showSend
-                ? () {
-              // Send button tapped
-              final text = _controller.text;
-              _controller.clear();
-              // Optional: pass text to parent via onRecorded or another callback
-              widget.onRecorded(text);
-            }
+                ? widget.onMessageSend
                 : (_state == RecordState.recording ? _stop : _tapStart),
             onLongPressStart: _startRecord,
             onLongPressMoveUpdate: _update,

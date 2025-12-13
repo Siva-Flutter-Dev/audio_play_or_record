@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import '../../audio_play_or_record.dart';
 import '../controllers/audio_player_controller.dart';
-import '../models/record_button_config.dart';
-
+import '../painters/waveform_painter.dart';
 
 class RecordingOverlay extends StatefulWidget {
   final double width;
@@ -36,6 +36,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
 
   Duration _position = Duration.zero;
   Duration? _total;
+  List<double> _waveformAmplitudes = [];
 
   @override
   void initState() {
@@ -54,6 +55,9 @@ class _RecordingOverlayState extends State<RecordingOverlay>
 
   Future<void> _initPlayer() async {
     await _audioController.load(widget.audioPath!);
+
+    // TODO: replace this with actual waveform extraction if needed
+    _waveformAmplitudes = List.generate(50, (_) => _rand.nextDouble());
 
     _audioController.durationStream.listen((d) {
       if (mounted) setState(() => _total = d ?? Duration.zero);
@@ -91,48 +95,60 @@ class _RecordingOverlayState extends State<RecordingOverlay>
   }
 
   Widget _wave() {
-    return LayoutBuilder(
-      builder: (_, c) {
-        final bars = (c.maxWidth / 6).floor();
-        final progress = !widget.isRecording && widget.audioPath != null && _total != null
-            ? (_position.inMilliseconds / _total!.inMilliseconds)
-            .clamp(0.0, 1.0)
-            : null;
-
-        return AnimatedBuilder(
-          animation: _waveController,
-          builder: (_, __) {
-            return Row(
-              mainAxisAlignment: _align(),
-              children: List.generate(bars, (i) {
-                final active =
-                    progress != null && i / bars <= progress;
-
-                final h = 6 + _rand.nextInt(18);
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1),
-                  child: Container(
-                    width: 3,
-                    height: h.toDouble(),
-                    decoration: BoxDecoration(
-                      color: active ? Colors.greenAccent : Colors.redAccent,
-                      borderRadius: BorderRadius.circular(2),
+    if (widget.isRecording) {
+      // Random animated waveform
+      return LayoutBuilder(
+        builder: (_, c) {
+          final bars = (c.maxWidth / 6).floor();
+          return AnimatedBuilder(
+            animation: _waveController,
+            builder: (_, __) {
+              return Row(
+                mainAxisAlignment: _align(),
+                children: List.generate(bars, (i) {
+                  final h = 6 + _rand.nextInt(18);
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 1),
+                    child: Container(
+                      width: 3,
+                      height: h.toDouble(),
+                      decoration: BoxDecoration(
+                        color: Colors.greenAccent,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
-                  ),
-                );
-              }),
-            );
-          },
-        );
-      },
-    );
+                  );
+                }),
+              );
+            },
+          );
+        },
+      );
+    } else if (widget.audioPath != null) {
+      // Audio-based waveform using your painter
+      return CustomPaint(
+        painter: WaveformPainter(
+          amplitudes: _waveformAmplitudes,
+          progress: _total != null
+              ? _position.inMilliseconds / _total!.inMilliseconds
+              : 0.0,
+          active: Colors.greenAccent,
+          inactive: Colors.redAccent,
+          barWidth: 3,
+          spacing: 2,
+        ),
+        size: Size(double.infinity, 56),
+      );
+    } else {
+      return SizedBox.shrink();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isPlaying =
-    !widget.isRecording && widget.audioPath != null ;
-        // ? _audioController.isPlaying : false;
+    final isPlaying = !widget.isRecording && widget.audioPath != null
+        ? _audioController.isPlaying
+        : false;
 
     return SizedBox(
       width: widget.width,
@@ -145,13 +161,14 @@ class _RecordingOverlayState extends State<RecordingOverlay>
         ),
         child: Row(
           children: [
-            // 🗑 DELETE
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: widget.onDelete,
-            ),
+            // Delete
+            if (widget.showDelete)
+              IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: widget.onDelete,
+              ),
 
-            // ▶ / ⏸ for playback
+            // Play / Pause button
             if (!widget.isRecording && widget.audioPath != null)
               IconButton(
                 icon: Icon(
@@ -165,10 +182,10 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                 },
               ),
 
-            // 🌊 WAVEFORM
+            // Waveform
             Expanded(child: _wave()),
 
-            // ⏱ TIME
+            // Time display
             Text(
               widget.isRecording
                   ? _format(widget.duration)
@@ -178,11 +195,9 @@ class _RecordingOverlayState extends State<RecordingOverlay>
 
             const SizedBox(width: 6),
 
-            // 🎤 / 🔊 ICON
+            // Mic / Speaker icon
             Icon(
-              widget.isRecording
-                  ? Icons.mic
-                  : Icons.volume_up,
+              widget.isRecording ? Icons.mic : Icons.volume_up,
               color: Colors.white,
               size: 18,
             ),
@@ -192,4 +207,3 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     );
   }
 }
-
