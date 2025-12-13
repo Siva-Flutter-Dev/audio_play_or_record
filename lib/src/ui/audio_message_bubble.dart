@@ -203,7 +203,6 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                             onPressed: () =>
                             _player.isPlaying ? _player.pause() : _player.play(),
                           ),
-                          SizedBox(width: screenWidth * 0.08),
                           Expanded(
                             child: SizedBox(
                               height: waveformHeight,
@@ -278,10 +277,10 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
 
                         ],
                       ),
-                      SizedBox(height: screenHeight * 0.005),
+                      SizedBox(height: screenHeight * 0.002),
                       // Duration row
                       Padding(
-                        padding: const EdgeInsets.only(left: 12),
+                        padding: const EdgeInsets.only(left: 16),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
