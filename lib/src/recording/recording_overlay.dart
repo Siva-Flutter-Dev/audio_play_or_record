@@ -32,7 +32,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     with SingleTickerProviderStateMixin {
   late final AnimationController _waveController;
   final _rand = Random();
-  late final AudioPlayerController _audioController;
+  AudioPlayerController? _audioController;
 
   Duration _position = Duration.zero;
   Duration? _total;
@@ -44,7 +44,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
 
     _waveController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 1200),
     )..repeat();
 
     if (!widget.isRecording && widget.audioPath != null) {
@@ -54,16 +54,16 @@ class _RecordingOverlayState extends State<RecordingOverlay>
   }
 
   Future<void> _initPlayer() async {
-    await _audioController.load(widget.audioPath!);
+    await _audioController?.load(widget.audioPath!);
 
     // TODO: replace this with actual waveform extraction if needed
     _waveformAmplitudes = List.generate(50, (_) => _rand.nextDouble());
 
-    _audioController.durationStream.listen((d) {
+    _audioController?.durationStream.listen((d) {
       if (mounted) setState(() => _total = d ?? Duration.zero);
     });
 
-    _audioController.positionStream.listen((p) {
+    _audioController?.positionStream.listen((p) {
       if (mounted) setState(() => _position = p);
     });
   }
@@ -72,7 +72,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
   void dispose() {
     _waveController.dispose();
     if (!widget.isRecording && widget.audioPath != null) {
-      _audioController.dispose();
+      _audioController?.dispose();
     }
     super.dispose();
   }
@@ -146,9 +146,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
 
   @override
   Widget build(BuildContext context) {
-    final isPlaying = !widget.isRecording && widget.audioPath != null
-        ? _audioController.isPlaying
-        : false;
+    final isPlaying = _audioController?.isPlaying ?? false;
 
     return SizedBox(
       width: widget.width,
@@ -176,9 +174,9 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                   color: Colors.white,
                 ),
                 onPressed: () {
-                  isPlaying
-                      ? _audioController.pause()
-                      : _audioController.play();
+                  if (_audioController != null) {
+                    isPlaying ? _audioController!.pause() : _audioController!.play();
+                  }
                 },
               ),
 
