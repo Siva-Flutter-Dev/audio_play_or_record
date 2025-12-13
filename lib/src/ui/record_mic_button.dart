@@ -142,10 +142,18 @@ class _RecordMicButtonState extends State<RecordMicButton> {
         mainAxisAlignment: widget.config.micAlignment,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _state==RecordState.idle
-          // ------------------ CUSTOM TEXTFIELD ------------------
-          ?Expanded(
-            child: TextField(
+          Expanded(
+            child: (_state != RecordState.idle || _audioPath != null)
+                ? RecordingOverlay(
+              width: widget.overlayWidth ?? width * 0.7,
+              duration: _duration,
+              direction: widget.config.waveDirection,
+              showDelete: true,
+              audioPath: _audioPath,
+              isRecording: _state == RecordState.recording,
+              onDelete: _cancel,
+            )
+                : TextField(
               controller: _controller,
               decoration: widget.textFieldDecoration ??
                   InputDecoration(
@@ -156,22 +164,12 @@ class _RecordMicButtonState extends State<RecordMicButton> {
                       borderRadius: BorderRadius.circular(24),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
             ),
           )
-          // 🎚 RECORD OVERLAY
-          :Expanded(
-            child: RecordingOverlay(
-              width: widget.overlayWidth ?? width * 0.7,
-              duration: _duration,
-              direction: widget.config.waveDirection,
-              showDelete: true,
-              audioPath: _audioPath,
-              isRecording: _state == RecordState.recording,
-              onDelete: _cancel,
-            ),
-          ),
+          ,
 
           const SizedBox(width: 12),
 
