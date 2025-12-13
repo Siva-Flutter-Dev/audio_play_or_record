@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 import '../controllers/audio_record_controller.dart';
 import '../recording/recording_overlay.dart';
 
 class RecordMicButton extends StatefulWidget {
+  final bool hasMicPermission;
   final Function(String path) onRecorded;
 
-  const RecordMicButton({super.key, required this.onRecorded});
+  const RecordMicButton({super.key, required this.onRecorded, this.hasMicPermission=false});
 
   @override
   State<RecordMicButton> createState() => _RecordMicButtonState();
@@ -21,13 +21,11 @@ class _RecordMicButtonState extends State<RecordMicButton> {
   Duration _duration = Duration.zero;
   Timer? _timer;
 
-  Future<bool> _ensureMicPermission() async {
-    final status = await Permission.microphone.request();
-    return status.isGranted;
-  }
-
   Future<void> _startRecording(LongPressStartDetails d) async {
-    if (!await _ensureMicPermission()) return;
+    if (!widget.hasMicPermission) {
+      debugPrint("Mic permission not granted");
+      return;
+    }
 
     _start = d.globalPosition;
     _cancelled = false;
