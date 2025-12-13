@@ -209,32 +209,68 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                               height: waveformHeight,
                               child: LayoutBuilder(
                                 builder: (context, constraints) {
-                                  return GestureDetector(
-                                    behavior: HitTestBehavior.translucent,
-                                    onTapDown: (details) {
-                                      _seekToPosition(
-                                        details.localPosition.dx,
-                                        constraints.maxWidth,
-                                      );
-                                    },
-                                    onHorizontalDragUpdate: (details) {
-                                      _seekToPosition(
-                                        details.localPosition.dx,
-                                        constraints.maxWidth,
-                                      );
-                                    },
-                                    child: CustomPaint(
-                                      size: Size(widget.waveWidth, 55),
-                                      painter: WaveformPainter(
-                                        amplitudes: _amps,
-                                        progress: _progress,
-                                        active: widget.config.activeWaveColor,
-                                        inactive: widget.config.inactiveWaveColor,
-                                        barWidth: widget.config.barWidth,
-                                        spacing: widget.config.spacing,
+                                  final availableWidth = constraints.maxWidth;
+                                  final barWidth = 3.0;
+                                  final spacing = 2.0;
+                                  final barCount = (availableWidth / (barWidth + spacing)).floor();
+                                  if (_amps.isNotEmpty) {
+                                    final amplitudes = List.generate(barCount, (i) {
+                                      final index =
+                                      (i * _amps.length / barCount).floor();
+                                      return _amps[
+                                      index.clamp(0, _amps.length - 1)];
+                                    });
+
+                                    return GestureDetector(
+                                      behavior: HitTestBehavior.translucent,
+                                      onTapDown: (details) =>
+                                          _seekToPosition(details.localPosition.dx, availableWidth),
+                                      onHorizontalDragUpdate: (details) =>
+                                          _seekToPosition(details.localPosition.dx, availableWidth),
+                                      child: CustomPaint(
+                                        size: Size(availableWidth, 56),
+                                        painter: WaveformPainter(
+                                          amplitudes: amplitudes,
+                                          progress: (_totalDuration != null && _totalDuration!.inMilliseconds > 0)
+                                              ? (_currentPosition.inMilliseconds /
+                                              _totalDuration!.inMilliseconds)
+                                              : 0.0,
+                                          active: widget.config.activeWaveColor,
+                                          inactive: widget.config.inactiveWaveColor,
+                                          barWidth: barWidth,
+                                          spacing: spacing,
+                                        ),
                                       ),
-                                    ),
-                                  );
+                                    );
+                                  }
+
+                                  return const SizedBox.shrink();
+                                  // return GestureDetector(
+                                  //   behavior: HitTestBehavior.translucent,
+                                  //   onTapDown: (details) {
+                                  //     _seekToPosition(
+                                  //       details.localPosition.dx,
+                                  //       constraints.maxWidth,
+                                  //     );
+                                  //   },
+                                  //   onHorizontalDragUpdate: (details) {
+                                  //     _seekToPosition(
+                                  //       details.localPosition.dx,
+                                  //       constraints.maxWidth,
+                                  //     );
+                                  //   },
+                                  //   child: CustomPaint(
+                                  //     size: Size(widget.waveWidth, 55),
+                                  //     painter: WaveformPainter(
+                                  //       amplitudes: _amps,
+                                  //       progress: _progress,
+                                  //       active: widget.config.activeWaveColor,
+                                  //       inactive: widget.config.inactiveWaveColor,
+                                  //       barWidth: widget.config.barWidth,
+                                  //       spacing: widget.config.spacing,
+                                  //     ),
+                                  //   ),
+                                  // );
                                 },
                               ),
                             ),

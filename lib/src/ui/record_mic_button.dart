@@ -273,7 +273,8 @@ class _RecordMicButtonState extends State<RecordMicButton>
         if (_state == RecordState.recording) {
           // Animated random waveform for recording
           amplitudes = List.generate(barCount, (_) => _rand.nextDouble());
-        } else if (_audioController != null) {
+        }
+        else if (_audioController != null) {
           // Playback waveform: use pre-extracted amplitudes
           if (_waveformAmplitudes.isEmpty) {
             amplitudes = List.generate(barCount, (_) => _rand.nextDouble());
