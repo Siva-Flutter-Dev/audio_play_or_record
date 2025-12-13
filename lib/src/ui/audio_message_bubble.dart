@@ -11,6 +11,7 @@ class AudioMessage extends StatefulWidget {
   final String audioPath;
   final String? profileImageUrl;
   final bool isSender;
+  final bool isProfile;
   final double waveWidth;
   final Color iconColor;
   final Color backgroundColor;
@@ -21,6 +22,7 @@ class AudioMessage extends StatefulWidget {
     required this.audioPath,
     required this.waveWidth,
     this.isSender = true,
+    this.isProfile = true,
     this.config = const AudioMessageConfig(),
     this.profileImageUrl,
     this.iconColor=Colors.black,
@@ -274,7 +276,12 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                               ),
                             ),
                           ),
-
+                          if(widget.isProfile)
+                          SizedBox(
+                            width: avatarSize,
+                            height: avatarSize,
+                            child: _buildAvatar(),
+                          )
                         ],
                       ),
                       SizedBox(height: screenHeight * 0.002),
@@ -308,16 +315,16 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
               ),
 
               // Avatar inside bubble
-              if(widget.profileImageUrl!=null)
-              Positioned(
-                bottom: -avatarOffset,
-                right: -avatarOffset,
-                child: SizedBox(
-                  width: avatarSize,
-                  height: avatarSize,
-                  child: _buildAvatar(),
-                ),
-              ),
+              // if(widget.isProfile)
+              // Positioned(
+              //   bottom: -avatarOffset,
+              //   right: -avatarOffset,
+              //   child: SizedBox(
+              //     width: avatarSize,
+              //     height: avatarSize,
+              //     child: _buildAvatar(),
+              //   ),
+              // ),
             ],
           ),
         ),
