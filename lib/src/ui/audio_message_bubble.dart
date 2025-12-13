@@ -33,10 +33,24 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
     _init();
   }
 
+  bool _isUrl(String path) {
+    return path.startsWith('http://') || path.startsWith('https://');
+  }
+
+
   Future<void> _init() async {
-    await _player.load(widget.audioPath);
-    final waveform = await WaveformExtractor.extract(widget.audioPath);
-    _amps = WaveformConverter.toAmplitudes(waveform, 45);
+    final isUrl = _isUrl(widget.audioPath);
+
+    // ✅ Load audio correctly
+    await _player.load(widget.audioPath, isUrl: isUrl);
+
+    // ✅ Only extract waveform for LOCAL files
+    if (!isUrl) {
+      final waveform = await WaveformExtractor.extract(widget.audioPath);
+      _amps = WaveformConverter.toAmplitudes(waveform, 45);
+    } else {
+      _amps = List.filled(45, 0.3); // fallback bars
+    }
 
     _player.positionStream.listen((pos) async {
       final dur = await _player.durationStream.first;
@@ -46,6 +60,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
 
     setState(() {});
   }
+
 
   @override
   void dispose() {

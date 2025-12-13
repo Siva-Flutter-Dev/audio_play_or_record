@@ -7,9 +7,14 @@ class AudioPlayerController {
   Stream<Duration?> get durationStream => _player.durationStream;
   bool get isPlaying => _player.playing;
 
-  Future<void> load(String path) async {
-    await _player.setFilePath(path);
+  Future<void> load(String path, {bool isUrl = false}) async {
+    if (isUrl) {
+      await _player.setUrl(path);
+    } else {
+      await _player.setFilePath(path);
+    }
   }
+
 
   void play() => _player.play();
   void pause() => _player.pause();
