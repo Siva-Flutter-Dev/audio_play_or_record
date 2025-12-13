@@ -244,25 +244,28 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                       ),
                       SizedBox(height: screenHeight * 0.005),
                       // Duration row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _formatDuration(_currentPosition),
-                            style: TextStyle(
-                              fontSize: 10 * textScale,
-                              color: widget.iconColor,
-                            ),
-                          ),
-                          if (_totalDuration != null)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
                             Text(
-                              _formatDuration(_totalDuration!),
+                              _formatDuration(_currentPosition),
                               style: TextStyle(
                                 fontSize: 10 * textScale,
                                 color: widget.iconColor,
                               ),
                             ),
-                        ],
+                            if (_totalDuration != null)
+                              Text(
+                                _formatDuration(_totalDuration!),
+                                style: TextStyle(
+                                  fontSize: 10 * textScale,
+                                  color: widget.iconColor,
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
