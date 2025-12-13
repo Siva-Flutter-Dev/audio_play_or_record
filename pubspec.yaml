@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  record: ^5.0.4
+  record: 5.2.0
   just_audio: ^0.9.36
   just_waveform: ^0.0.7
   path_provider: ^2.1.2
