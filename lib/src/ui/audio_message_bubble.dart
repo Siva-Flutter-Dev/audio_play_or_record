@@ -53,9 +53,14 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
 
   void _toggleSpeed() {
     setState(() {
-      if (_speed == 1.0) _speed = 1.5;
-      else if (_speed == 1.5) _speed = 2.0;
-      else _speed = 1.0;
+      if (_speed == 1.0) {
+        _speed = 1.5;
+      } else if (_speed == 1.5) {
+        _speed = 2.0;
+      }
+      else {
+        _speed = 1.0;
+      }
     });
     _player.speed(_speed);
   }
@@ -117,108 +122,115 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: widget.isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            if (!widget.isSender) ...[
-              _buildAvatar(),
-              const SizedBox(width: 4),
-            ],
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final textScale = MediaQuery.of(context).textScaleFactor;
 
-            Flexible(
-              child: Stack(
-                children: [
-                  CustomPaint(
-                    painter: BubblePainter(
-                      widget.isSender,
-                      widget.isSender ? Colors.green[50]! : Colors.grey[200]!,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+    // Responsive sizes
+    final bubblePaddingHorizontal = screenWidth * 0.03; // 3% of width
+    final bubblePaddingVertical = screenHeight * 0.008; // ~1% of height
+    final avatarSize = screenWidth * 0.09; // 9% of width
+    final avatarOffset = avatarSize * 0.2; // offset for overlap
+    final waveformHeight = screenHeight * 0.05; // 5% of height
+
+    return Row(
+      mainAxisAlignment: widget.isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Flexible(
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // Bubble
+              CustomPaint(
+                painter: BubblePainter(
+                  widget.isSender,
+                  widget.isSender ? Colors.green[50]! : Colors.grey[200]!,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: bubblePaddingHorizontal,
+                    vertical: bubblePaddingVertical,
+                  ).copyWith(
+                    right: bubblePaddingHorizontal + avatarSize, // space for avatar
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Play button + waveform
+                      Row(
                         children: [
-                          // waveform row
-                          Row(
-                            children: [
-                              IconButton(
-                                icon: Icon(_player.isPlaying ? Icons.pause : Icons.play_arrow),
-                                onPressed: () => _player.isPlaying ? _player.pause() : _player.play(),
-                              ),
-                              Expanded(
-                                child: SizedBox(
-                                  height: 40,
-                                  child: CustomPaint(
-                                    painter: WaveformPainter(
-                                      amplitudes: _amps,
-                                      progress: _progress,
-                                      active: widget.config.activeWaveColor,
-                                      inactive: widget.config.inactiveWaveColor,
-                                      barWidth: widget.config.barWidth,
-                                      spacing: widget.config.spacing,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              if (widget.config.showPlaybackSpeed)
-                                GestureDetector(
-                                  onTap: _toggleSpeed,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                                    child: Text('${_speed}x',
-                                        style: const TextStyle(
-                                            fontSize: 12, fontWeight: FontWeight.bold)),
-                                  ),
-                                ),
-                            ],
+                          IconButton(
+                            icon: Icon(
+                              _player.isPlaying ? Icons.pause : Icons.play_arrow,
+                              size: screenWidth * 0.07, // responsive icon
+                            ),
+                            onPressed: () =>
+                            _player.isPlaying ? _player.pause() : _player.play(),
                           ),
-                          const SizedBox(height: 4),
-                          // duration + status
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                _formatDuration(_currentPosition),
-                                style: const TextStyle(fontSize: 10, color: Colors.grey),
+                          SizedBox(width: screenWidth * 0.02),
+                          Expanded(
+                            child: SizedBox(
+                              height: waveformHeight,
+                              child: CustomPaint(
+                                painter: WaveformPainter(
+                                  amplitudes: _amps,
+                                  progress: _progress,
+                                  active: widget.config.activeWaveColor,
+                                  inactive: widget.config.inactiveWaveColor,
+                                  barWidth: widget.config.barWidth,
+                                  spacing: widget.config.spacing,
+                                ),
                               ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (_totalDuration != null)
-                                    Text(
-                                      _formatDuration(_totalDuration!),
-                                      style: const TextStyle(fontSize: 10, color: Colors.grey),
-                                    ),
-                                  const SizedBox(width: 4),
-                                  if (widget.isSender) _buildStatus(),
-                                ],
-                              ),
-                            ],
+                            ),
                           ),
                         ],
                       ),
-                    ),
+                      SizedBox(height: screenHeight * 0.005),
+                      // Duration row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _formatDuration(_currentPosition),
+                            style: TextStyle(
+                              fontSize: 10 * textScale,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          if (_totalDuration != null)
+                            Text(
+                              _formatDuration(_totalDuration!),
+                              style: TextStyle(
+                                fontSize: 10 * textScale,
+                                color: Colors.grey,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
 
-            if (widget.isSender) ...[
-              const SizedBox(width: 4),
-              _buildAvatar(),
+              // Avatar inside bubble
+              Positioned(
+                bottom: -avatarOffset,
+                right: -avatarOffset,
+                child: SizedBox(
+                  width: avatarSize,
+                  height: avatarSize,
+                  child: _buildAvatar(),
+                ),
+              ),
             ],
-          ],
-        )
-
+          ),
+        ),
       ],
     );
   }
+
 
 
   Widget _buildAvatar() {
