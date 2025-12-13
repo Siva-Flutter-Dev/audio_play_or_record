@@ -18,3 +18,6 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Refactored audio controller for better performance
 
+## 1.0.1 - 2025-12-14
+- Improved README documentation
+- Minor fixes and cleanup

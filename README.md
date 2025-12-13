@@ -15,6 +15,13 @@ interactive waveforms with seek support (WhatsApp-style).
 
 🧩 Fully customizable UI (colors, icons, layout)
 
+📸 Screenshots
+
+![img.png](img.png)
+![img_1.png](img_1.png)
+![img_2.png](img_2.png)
+![img_3.png](img_3.png)
+
 📦 Installation
 
 Add this to your pubspec.yaml:
