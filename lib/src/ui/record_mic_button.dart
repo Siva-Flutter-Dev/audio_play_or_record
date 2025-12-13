@@ -183,55 +183,126 @@ class _RecordMicButtonState extends State<RecordMicButton>
     return "$m:$s";
   }
 
+  // Widget _wave() {
+  //   if (_state == RecordState.recording) {
+  //     // Animated random waveform
+  //     return LayoutBuilder(
+  //       builder: (_, c) {
+  //         final bars = (c.maxWidth / 6).floor();
+  //         return AnimatedBuilder(
+  //           animation: _waveController,
+  //           builder: (_, __) {
+  //             return Row(
+  //               mainAxisAlignment: MainAxisAlignment.center,
+  //               children: List.generate(bars, (i) {
+  //                 final h = 6 + _rand.nextInt(18);
+  //                 return Padding(
+  //                   padding: const EdgeInsets.symmetric(horizontal: 1),
+  //                   child: Container(
+  //                     width: 3,
+  //                     height: h.toDouble(),
+  //                     decoration: BoxDecoration(
+  //                       color: Colors.greenAccent,
+  //                       borderRadius: BorderRadius.circular(2),
+  //                     ),
+  //                   ),
+  //                 );
+  //               }),
+  //             );
+  //           },
+  //         );
+  //       },
+  //     );
+  //   } else if (_audioController != null) {
+  //     // Playback waveform
+  //     return CustomPaint(
+  //       painter: WaveformPainter(
+  //         amplitudes: _waveformAmplitudes,
+  //         progress: (_total != null && _total!.inMilliseconds > 0)
+  //             ? (_position.inMilliseconds / _total!.inMilliseconds)
+  //             : 0,
+  //         active: Colors.greenAccent,
+  //         inactive: Colors.redAccent,
+  //         barWidth: 3,
+  //         spacing: 2,
+  //       ),
+  //       size: const Size(double.infinity, 56),
+  //     );
+  //   } else {
+  //     return const SizedBox.shrink();
+  //   }
+  // }
+
   Widget _wave() {
-    if (_state == RecordState.recording) {
-      // Animated random waveform
-      return LayoutBuilder(
-        builder: (_, c) {
-          final bars = (c.maxWidth / 6).floor();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.maxWidth;
+        final barWidth = 3.0;
+        final spacing = 2.0;
+        final barCount = (availableWidth / (barWidth + spacing)).floor();
+
+        List<double> amplitudes;
+        if (_state == RecordState.recording) {
+          // Animated random waveform for recording
+          amplitudes = List.generate(barCount, (_) => _rand.nextDouble());
+        } else if (_audioController != null) {
+          // Playback waveform: use pre-extracted amplitudes
+          if (_waveformAmplitudes.isEmpty) {
+            amplitudes = List.generate(barCount, (_) => _rand.nextDouble());
+          } else {
+            // Resize to fit the available width
+            amplitudes = List.generate(barCount, (i) {
+              final index = (i * _waveformAmplitudes.length / barCount).floor();
+              return _waveformAmplitudes[index.clamp(0, _waveformAmplitudes.length - 1)];
+            });
+          }
+        } else {
+          return const SizedBox.shrink();
+        }
+
+        if (_state == RecordState.recording) {
           return AnimatedBuilder(
             animation: _waveController,
             builder: (_, __) {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(bars, (i) {
-                  final h = 6 + _rand.nextInt(18);
+                children: amplitudes.map((amp) {
+                  final height = 6 + (amp * 18); // min 6, max 24
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 1),
+                    padding: EdgeInsets.symmetric(horizontal: spacing / 2),
                     child: Container(
-                      width: 3,
-                      height: h.toDouble(),
+                      width: barWidth,
+                      height: height,
                       decoration: BoxDecoration(
                         color: Colors.greenAccent,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   );
-                }),
+                }).toList(),
               );
             },
           );
-        },
-      );
-    } else if (_audioController != null) {
-      // Playback waveform
-      return CustomPaint(
-        painter: WaveformPainter(
-          amplitudes: _waveformAmplitudes,
-          progress: (_total != null && _total!.inMilliseconds > 0)
-              ? (_position.inMilliseconds / _total!.inMilliseconds)
-              : 0,
-          active: Colors.greenAccent,
-          inactive: Colors.redAccent,
-          barWidth: 3,
-          spacing: 2,
-        ),
-        size: const Size(double.infinity, 56),
-      );
-    } else {
-      return const SizedBox.shrink();
-    }
+        } else {
+          // Playback waveform
+          return CustomPaint(
+            painter: WaveformPainter(
+              amplitudes: amplitudes,
+              progress: (_total != null && _total!.inMilliseconds > 0)
+                  ? (_position.inMilliseconds / _total!.inMilliseconds)
+                  : 0.0,
+              active: Colors.greenAccent,
+              inactive: Colors.redAccent,
+              barWidth: barWidth,
+              spacing: spacing,
+            ),
+            size: Size(availableWidth, 56),
+          );
+        }
+      },
+    );
   }
+
 
   @override
   Widget build(BuildContext context) {
