@@ -1,7 +1,11 @@
 name: audio_play_or_record
-description: "Audio Message widget and recorder"
-version: 0.0.1
-homepage:
+description: "A Flutter package for recording, playing audio and displaying
+  interactive waveform with seek support"
+version: 1.0.0
+homepage: https://github.com/Siva-Flutter-Dev/audio_play_or_record
+repository: https://github.com/Siva-Flutter-Dev/audio_play_or_record
+publish_to: 'https://pub.dev'
+documentation: https://github.com/Siva-Flutter-Dev/audio_play_or_record#readme
 
 environment:
   sdk: ^3.10.1
@@ -27,6 +31,7 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  uses-material-design: true
 
   # To add assets to your package, add an assets section, like this:
   # assets:
