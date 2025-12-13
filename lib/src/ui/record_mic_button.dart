@@ -1,47 +1,46 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../controllers/audio_record_controller.dart';
+import '../models/record_button_config.dart';
 import '../recording/recording_overlay.dart';
 import 'package:flutter/services.dart';
 
-enum RecordState { idle, recording, locked }
-
 class RecordMicButton extends StatefulWidget {
   final bool hasMicPermission;
-  final bool enableHaptics;
-  final bool enableLock;
+  final double? overlayWidth;
+  final RecordButtonConfig config;
   final Function(String path) onRecorded;
 
   const RecordMicButton({
     super.key,
     required this.onRecorded,
-    this.hasMicPermission = false,
-    this.enableHaptics = false,
-    this.enableLock = false,
+    required this.hasMicPermission,
+    this.config = const RecordButtonConfig(),
+    this.overlayWidth,
   });
 
   @override
   State<RecordMicButton> createState() => _RecordMicButtonState();
 }
 
+
 class _RecordMicButtonState extends State<RecordMicButton> {
-  final AudioRecorderController _recorder = AudioRecorderController();
+  final _recorder = AudioRecorderController();
 
   RecordState _state = RecordState.idle;
   Offset _start = Offset.zero;
   Duration _duration = Duration.zero;
   Timer? _timer;
 
-  // ---------------- HAPTIC ----------------
   void _haptic() {
-    if (widget.enableHaptics) {
+    if (widget.config.enableHaptics) {
       HapticFeedback.mediumImpact();
     }
   }
 
-  // ---------------- START ----------------
+  // ---------- START ----------
   Future<void> _startRecord(LongPressStartDetails d) async {
-    if (!widget.hasMicPermission) return;
+    if (!widget.hasMicPermission || _state != RecordState.idle) return;
 
     _start = d.globalPosition;
     _duration = Duration.zero;
@@ -49,7 +48,6 @@ class _RecordMicButtonState extends State<RecordMicButton> {
     await _recorder.start();
     _haptic();
 
-    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
       setState(() => _duration += const Duration(seconds: 1));
@@ -58,40 +56,43 @@ class _RecordMicButtonState extends State<RecordMicButton> {
     setState(() => _state = RecordState.recording);
   }
 
-  // ---------------- MOVE ----------------
-  void _update(LongPressMoveUpdateDetails d) {
-    if (_state != RecordState.recording) return;
+  // ---------- TAP START ----------
+  Future<void> _tapStart() async {
+    if (!widget.config.enableTapRecord || _state != RecordState.idle) return;
+    await _startRecord(LongPressStartDetails(globalPosition: Offset.zero));
+  }
 
+  // ---------- MOVE ----------
+  void _update(LongPressMoveUpdateDetails d) {
     final dx = _start.dx - d.globalPosition.dx;
     final dy = _start.dy - d.globalPosition.dy;
 
-    // 🔒 LOCK (OPTIONAL)
-    if (widget.enableLock && dy > 60) {
-      _haptic();
-      setState(() => _state = RecordState.locked);
-      return;
+    // ❌ Slide left to cancel
+    if (dx > 80 && _state == RecordState.recording) {
+      _cancel();
     }
 
-    // ❌ CANCEL (SLIDE LEFT)
-    if (dx > 80) {
-      _cancel();
+    // 🔒 Slide up to lock (optional, no icon)
+    if (widget.config.enableLock &&
+        dy > 60 &&
+        _state == RecordState.recording) {
+      _haptic();
+      setState(() => _state = RecordState.locked);
     }
   }
 
-  // ---------------- STOP & SAVE ----------------
-  Future<void> _stopAndSave() async {
+  // ---------- STOP ----------
+  Future<void> _stop() async {
     _timer?.cancel();
     _timer = null;
 
     final path = await _recorder.stop();
-    if (path != null && mounted) {
-      widget.onRecorded(path);
-    }
+    if (path != null && mounted) widget.onRecorded(path);
 
     setState(() => _state = RecordState.idle);
   }
 
-  // ---------------- CANCEL ----------------
+  // ---------- CANCEL ----------
   Future<void> _cancel() async {
     _haptic();
     _timer?.cancel();
@@ -110,59 +111,51 @@ class _RecordMicButtonState extends State<RecordMicButton> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final width = MediaQuery.of(context).size.width;
 
     return SizedBox(
-      height: 140, // fixed → hit-test safe
+      height: 70,
       child: Stack(
-        alignment: Alignment.center,
-        clipBehavior: Clip.none,
+        alignment: widget.config.micAlignment,
         children: [
-          // 🎤 MIC / STOP BUTTON
+          // 🎚 RECORD OVERLAY
+          if (_state != RecordState.idle)
+            Positioned(
+              top: 0,
+              child: RecordingOverlay(
+                width: widget.overlayWidth??MediaQuery.of(context).size.width * 0.92,
+                duration: _duration,
+                direction: widget.config.waveDirection,
+                showDelete: true,
+                isRecording: true,
+                onDelete: _cancel,
+              ),
+            ),
+
+          // 🎤 MIC BUTTON
           Positioned(
             bottom: 0,
             child: GestureDetector(
-              onLongPressStart:
-              _state == RecordState.idle ? _startRecord : null,
+              onTap: _tapStart,
+              onLongPressStart: _startRecord,
               onLongPressMoveUpdate: _update,
               onLongPressEnd: (_) {
-                if (_state == RecordState.recording) {
-                  _stopAndSave();
-                }
+                if (_state == RecordState.recording) _stop();
               },
-              onTap:
-              _state == RecordState.locked ? _stopAndSave : null,
               child: CircleAvatar(
-                radius: 28,
+                radius: 30,
                 backgroundColor:
                 _state == RecordState.idle ? Colors.green : Colors.red,
                 child: Icon(
-                  _state == RecordState.idle
-                      ? Icons.mic
-                      : Icons.stop,
+                  _state == RecordState.idle ? Icons.mic : Icons.stop,
                   color: Colors.white,
                 ),
               ),
             ),
           ),
-
-          // 🎚 RECORDING OVERLAY
-          if (_state != RecordState.idle)
-            Positioned(
-              top: 0,
-              child: SizedBox(
-                width: screenWidth * 0.9,
-                height: 56,
-                child: RecordingOverlay(
-                  duration: _duration,
-                  isLocked:
-                  widget.enableLock && _state == RecordState.locked,
-                  onDelete: _cancel,
-                ),
-              ),
-            ),
         ],
       ),
     );
   }
 }
+
