@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'dart:math';
 import '../controllers/audio_record_controller.dart';
+import '../controllers/audio_player_controller.dart';
 import '../models/record_button_config.dart';
-import '../recording/recording_overlay.dart';
+import '../painters/waveform_painter.dart';
 import 'package:flutter/services.dart';
 
 class RecordMicButton extends StatefulWidget {
@@ -18,7 +20,7 @@ class RecordMicButton extends StatefulWidget {
   final String? audioPath;
   final Widget? stopIcon;
   final Widget? sendIcon;
-  final double? buttonRadius; // size of the circle
+  final double? buttonRadius;
   final Color? micColor;
   final Color? stopColor;
   final Color? sendColor;
@@ -28,7 +30,8 @@ class RecordMicButton extends StatefulWidget {
     super.key,
     required this.onRecorded,
     required this.hasMicPermission,
-    this.isSendEnable=false,
+    required this.onMessageSend,
+    this.isSendEnable = false,
     this.config = const RecordButtonConfig(),
     this.overlayWidth,
     this.textController,
@@ -41,7 +44,6 @@ class RecordMicButton extends StatefulWidget {
     this.stopColor,
     this.sendColor,
     this.buttonPadding,
-    required this.onMessageSend,
     this.audioPath,
   });
 
@@ -49,30 +51,70 @@ class RecordMicButton extends StatefulWidget {
   State<RecordMicButton> createState() => _RecordMicButtonState();
 }
 
-class _RecordMicButtonState extends State<RecordMicButton> {
+class _RecordMicButtonState extends State<RecordMicButton>
+    with SingleTickerProviderStateMixin {
   final _recorder = AudioRecorderController();
   late final TextEditingController _controller;
-
   RecordState _state = RecordState.idle;
   Offset _start = Offset.zero;
   Duration _duration = Duration.zero;
   Timer? _timer;
 
+  // Audio playback
+  AudioPlayerController? _audioController;
+  Duration _position = Duration.zero;
+  Duration? _total;
+  List<double> _waveformAmplitudes = [];
+  final _rand = Random();
+  late final AnimationController _waveController;
+
   @override
   void initState() {
     super.initState();
+
     _controller = widget.textController ?? TextEditingController();
     _controller.addListener(() => setState(() {}));
+
+    _waveController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+
+    // If audioPath is passed initially, init audio player
+    if (widget.audioPath != null) _initPlayer(widget.audioPath!);
+  }
+
+  @override
+  void didUpdateWidget(covariant RecordMicButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If audioPath changes, init audio player again
+    if (widget.audioPath != null && widget.audioPath != oldWidget.audioPath) {
+      _initPlayer(widget.audioPath!);
+    }
+  }
+
+  Future<void> _initPlayer(String path) async {
+    _audioController?.dispose();
+    _audioController = AudioPlayerController();
+    await _audioController?.load(path);
+
+    // Dummy waveform, replace with real extraction if needed
+    _waveformAmplitudes = List.generate(50, (_) => _rand.nextDouble());
+
+    _audioController?.durationStream.listen((d) {
+      if (mounted) setState(() => _total = d ?? Duration.zero);
+    });
+    _audioController?.positionStream.listen((p) {
+      if (mounted) setState(() => _position = p);
+    });
   }
 
   void _haptic() {
     if (widget.config.enableHaptics) HapticFeedback.mediumImpact();
   }
 
-  // ---------- RECORD ----------
   Future<void> _startRecord(LongPressStartDetails d) async {
     if (!widget.hasMicPermission || _state != RecordState.idle) return;
-
     _start = d.globalPosition;
     _duration = Duration.zero;
 
@@ -95,7 +137,6 @@ class _RecordMicButtonState extends State<RecordMicButton> {
   void _update(LongPressMoveUpdateDetails d) {
     final dx = _start.dx - d.globalPosition.dx;
     final dy = _start.dy - d.globalPosition.dy;
-
     if (dx > 80 && _state == RecordState.recording) _cancel();
     if (widget.config.enableLock && dy > 60 && _state == RecordState.recording) {
       _haptic();
@@ -109,10 +150,9 @@ class _RecordMicButtonState extends State<RecordMicButton> {
 
     final path = await _recorder.stop();
     if (path != null && mounted) {
-      setState(() {
-        _state = RecordState.idle;
-      });
+      setState(() => _state = RecordState.idle);
       widget.onRecorded(path);
+      _initPlayer(path); // init audio playback immediately
     } else {
       setState(() => _state = RecordState.idle);
     }
@@ -131,14 +171,73 @@ class _RecordMicButtonState extends State<RecordMicButton> {
   void dispose() {
     _timer?.cancel();
     _recorder.dispose();
+    _audioController?.dispose();
     if (widget.textController == null) _controller.dispose();
+    _waveController.dispose();
     super.dispose();
+  }
+
+  String _format(Duration d) {
+    final m = d.inMinutes.toString().padLeft(2, '0');
+    final s = (d.inSeconds % 60).toString().padLeft(2, '0');
+    return "$m:$s";
+  }
+
+  Widget _wave() {
+    if (_state == RecordState.recording) {
+      // Animated random waveform
+      return LayoutBuilder(
+        builder: (_, c) {
+          final bars = (c.maxWidth / 6).floor();
+          return AnimatedBuilder(
+            animation: _waveController,
+            builder: (_, __) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(bars, (i) {
+                  final h = 6 + _rand.nextInt(18);
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 1),
+                    child: Container(
+                      width: 3,
+                      height: h.toDouble(),
+                      decoration: BoxDecoration(
+                        color: Colors.greenAccent,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  );
+                }),
+              );
+            },
+          );
+        },
+      );
+    } else if (_audioController != null) {
+      // Playback waveform
+      return CustomPaint(
+        painter: WaveformPainter(
+          amplitudes: _waveformAmplitudes,
+          progress: (_total != null && _total!.inMilliseconds > 0)
+              ? (_position.inMilliseconds / _total!.inMilliseconds)
+              : 0,
+          active: Colors.greenAccent,
+          inactive: Colors.redAccent,
+          barWidth: 3,
+          spacing: 2,
+        ),
+        size: const Size(double.infinity, 56),
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final showSend = _controller.text.isNotEmpty || widget.isSendEnable;
+    final isPlaying = _audioController?.isPlaying ?? false;
 
     return SizedBox(
       height: 70,
@@ -147,15 +246,52 @@ class _RecordMicButtonState extends State<RecordMicButton> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            child: (_state != RecordState.idle || widget.audioPath != null)
-                ? RecordingOverlay(
+            child: (_state != RecordState.idle || _audioController != null)
+                ? Container(
               width: widget.overlayWidth ?? width * 0.7,
-              duration: _duration,
-              direction: widget.config.waveDirection,
-              showDelete: true,
-              audioPath: widget.audioPath,
-              isRecording: _state == RecordState.recording,
-              onDelete: _cancel,
+              height: 56,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.black87,
+                borderRadius: BorderRadius.circular(28),
+              ),
+              child: Row(
+                children: [
+                  // Delete button
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: _cancel,
+                  ),
+                  // Play/Pause button
+                  if (_audioController != null)
+                    IconButton(
+                      icon: Icon(
+                        isPlaying ? Icons.pause : Icons.play_arrow,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        if (_audioController != null) {
+                          isPlaying
+                              ? _audioController!.pause()
+                              : _audioController!.play();
+                        }
+                      },
+                    ),
+                  Expanded(child: _wave()),
+                  Text(
+                    _state == RecordState.recording
+                        ? _format(_duration)
+                        : "${_format(_position)} / ${_format(_total ?? Duration.zero)}",
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                  const SizedBox(width: 6),
+                  Icon(
+                    _state == RecordState.recording ? Icons.mic : Icons.volume_up,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                ],
+              ),
             )
                 : TextField(
               controller: _controller,
@@ -168,16 +304,11 @@ class _RecordMicButtonState extends State<RecordMicButton> {
                       borderRadius: BorderRadius.circular(24),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
             ),
-          )
-          ,
-
+          ),
           const SizedBox(width: 12),
-
-          // 🎤 MIC / STOP / SEND BUTTON
           GestureDetector(
             onTap: showSend
                 ? widget.onMessageSend
@@ -190,7 +321,7 @@ class _RecordMicButtonState extends State<RecordMicButton> {
             child: Container(
               width: widget.buttonRadius ?? 60,
               height: widget.buttonRadius ?? 60,
-              padding: widget.buttonPadding ?? const EdgeInsets.all(0),
+              padding: widget.buttonPadding ?? EdgeInsets.zero,
               decoration: BoxDecoration(
                 color: showSend
                     ? (widget.sendColor ?? Colors.blue)
