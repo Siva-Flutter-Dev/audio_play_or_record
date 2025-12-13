@@ -115,15 +115,16 @@ class _RecordMicButtonState extends State<RecordMicButton> {
 
     return SizedBox(
       height: 70,
-      child: Stack(
-        alignment: widget.config.micAlignment,
+      child: Row(
+        mainAxisAlignment: widget.config.micAlignment,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // 🎚 RECORD OVERLAY
           if (_state != RecordState.idle)
-            Positioned(
-              top: 0,
+            Expanded(
               child: RecordingOverlay(
-                width: widget.overlayWidth??MediaQuery.of(context).size.width * 0.92,
+                width: widget.overlayWidth ??
+                    MediaQuery.of(context).size.width * 0.7,
                 duration: _duration,
                 direction: widget.config.waveDirection,
                 showDelete: true,
@@ -132,30 +133,30 @@ class _RecordMicButtonState extends State<RecordMicButton> {
               ),
             ),
 
+          if (_state != RecordState.idle) const SizedBox(width: 12),
+
           // 🎤 MIC BUTTON
-          Positioned(
-            bottom: 0,
-            child: GestureDetector(
-              onTap: _tapStart,
-              onLongPressStart: _startRecord,
-              onLongPressMoveUpdate: _update,
-              onLongPressEnd: (_) {
-                if (_state == RecordState.recording) _stop();
-              },
-              child: CircleAvatar(
-                radius: 30,
-                backgroundColor:
-                _state == RecordState.idle ? Colors.green : Colors.red,
-                child: Icon(
-                  _state == RecordState.idle ? Icons.mic : Icons.stop,
-                  color: Colors.white,
-                ),
+          GestureDetector(
+            onTap: _state == RecordState.recording ? _stop : _tapStart,
+            onLongPressStart: _startRecord,
+            onLongPressMoveUpdate: _update,
+            onLongPressEnd: (_) {
+              if (_state == RecordState.recording) _stop();
+            },
+            child: CircleAvatar(
+              radius: 30,
+              backgroundColor:
+              _state == RecordState.idle ? Colors.green : Colors.red,
+              child: Icon(
+                _state == RecordState.idle ? Icons.mic : Icons.stop,
+                color: Colors.white,
               ),
             ),
           ),
         ],
       ),
     );
+
   }
 }
 

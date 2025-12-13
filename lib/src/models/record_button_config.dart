@@ -9,13 +9,13 @@ class RecordButtonConfig {
   final bool enableHaptics;
   final bool enableTapRecord;
   final WaveDirection waveDirection;
-  final Alignment micAlignment;
+  final MainAxisAlignment micAlignment;
 
   const RecordButtonConfig({
     this.enableLock = false,
     this.enableHaptics = false,
     this.enableTapRecord = true,
     this.waveDirection = WaveDirection.left,
-    this.micAlignment = Alignment.bottomCenter,
+    this.micAlignment = MainAxisAlignment.spaceBetween,
   });
 }
