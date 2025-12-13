@@ -12,6 +12,10 @@ class AudioMessage extends StatefulWidget {
   final String? profileImageUrl;
   final bool isSender;
   final double waveWidth;
+  final Color iconColor;
+  final Color runningWave;
+  final Color backgroundWave;
+  final Color backgroundColor;
   final AudioMessageConfig config;
 
   const AudioMessage({
@@ -21,6 +25,10 @@ class AudioMessage extends StatefulWidget {
     this.isSender = true,
     this.config = const AudioMessageConfig(),
     this.profileImageUrl,
+    this.iconColor=Colors.black,
+    this.runningWave=Colors.blue,
+    this.backgroundWave=Colors.black12,
+    this.backgroundColor=Colors.white,
   });
 
   @override
@@ -174,7 +182,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
               CustomPaint(
                 painter: BubblePainter(
                   widget.isSender,
-                  widget.isSender ? Colors.green[50]! : Colors.grey[200]!,
+                  widget.backgroundColor,
                 ),
                 child: Padding(
                   padding: EdgeInsets.symmetric(
@@ -194,6 +202,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                             icon: Icon(
                               _player.isPlaying ? Icons.pause : Icons.play_arrow,
                               size: screenWidth * 0.07, // responsive icon
+                              color: widget.iconColor,
                             ),
                             onPressed: () =>
                             _player.isPlaying ? _player.pause() : _player.play(),
@@ -246,7 +255,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                             _formatDuration(_currentPosition),
                             style: TextStyle(
                               fontSize: 10 * textScale,
-                              color: Colors.grey,
+                              color: widget.iconColor,
                             ),
                           ),
                           if (_totalDuration != null)
@@ -254,7 +263,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                               _formatDuration(_totalDuration!),
                               style: TextStyle(
                                 fontSize: 10 * textScale,
-                                color: Colors.grey,
+                                color: widget.iconColor,
                               ),
                             ),
                         ],
@@ -291,7 +300,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
         // Main avatar
         CircleAvatar(
           radius: 18,
-          backgroundColor: Colors.grey[300],
+          backgroundColor: widget.runningWave,
           backgroundImage: (isUrl && widget.profileImageUrl != null)
               ? NetworkImage(widget.profileImageUrl!)
               : null,
@@ -299,7 +308,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
               ? Icon(
             Icons.person,
             size: 18,
-            color: Colors.grey[700],
+            color: widget.iconColor,
           )
               : null,
         ),
@@ -310,11 +319,11 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
           right: 0,
           child: CircleAvatar(
             radius: 7,
-            backgroundColor: Colors.green, // WhatsApp mic bubble color
+            backgroundColor: widget.runningWave, // WhatsApp mic bubble color
             child: Icon(
               Icons.mic,
               size: 10,
-              color: Colors.white,
+              color: widget.iconColor,
             ),
           ),
         ),

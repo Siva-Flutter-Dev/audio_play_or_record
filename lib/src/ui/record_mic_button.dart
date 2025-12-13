@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import '../controllers/audio_record_controller.dart';
@@ -11,6 +12,7 @@ class RecordMicButton extends StatefulWidget {
   final bool hasMicPermission;
   final bool isSendEnable;
   final double? overlayWidth;
+  final double height;
   final RecordButtonConfig config;
   final Function(String path) onRecorded;
   final VoidCallback onMessageSend;
@@ -22,9 +24,13 @@ class RecordMicButton extends StatefulWidget {
   final Widget? stopIcon;
   final Widget? sendIcon;
   final double? buttonRadius;
-  final Color? micColor;
-  final Color? stopColor;
-  final Color? sendColor;
+  final Color primaryColor;
+  final Color stopButtonColor;
+  final Color iconColor;
+  final Color iconWhileRecColor;
+  final Color runningWave;
+  final Color backgroundWave;
+  final Color backgroundAudio;
   final EdgeInsets? buttonPadding;
 
   RecordMicButton({
@@ -34,6 +40,7 @@ class RecordMicButton extends StatefulWidget {
     required this.onMessageSend,
     required this.onDelete,
     this.isSendEnable = false,
+    this.height = 62,
     this.config = const RecordButtonConfig(),
     this.overlayWidth,
     this.textController,
@@ -42,9 +49,13 @@ class RecordMicButton extends StatefulWidget {
     this.stopIcon,
     this.sendIcon,
     this.buttonRadius,
-    this.micColor,
-    this.stopColor,
-    this.sendColor,
+    this.primaryColor=Colors.blue,
+    this.stopButtonColor=Colors.red,
+    this.iconColor=Colors.white,
+    this.iconWhileRecColor=Colors.black,
+    this.runningWave=Colors.blue,
+    this.backgroundWave=Colors.black12,
+    this.backgroundAudio=Colors.white,
     this.buttonPadding,
     this.audioPath,
   });
@@ -291,7 +302,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
                       width: barWidth,
                       height: height,
                       decoration: BoxDecoration(
-                        color: Colors.greenAccent,
+                        color: widget.runningWave,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -308,8 +319,8 @@ class _RecordMicButtonState extends State<RecordMicButton>
               progress: (_total != null && _total!.inMilliseconds > 0)
                   ? (_position.inMilliseconds / _total!.inMilliseconds)
                   : 0.0,
-              active: Colors.greenAccent,
-              inactive: Colors.redAccent,
+              active: widget.runningWave,
+              inactive: widget.backgroundWave,
               barWidth: barWidth,
               spacing: spacing,
             ),
@@ -328,7 +339,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
     final isPlaying = _audioController?.isPlaying ?? false;
 
     return SizedBox(
-      height: 70,
+      height: widget.height,
       child: Row(
         mainAxisAlignment: widget.config.micAlignment,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -340,14 +351,14 @@ class _RecordMicButtonState extends State<RecordMicButton>
               height: 56,
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: Colors.black87,
+                color: widget.backgroundAudio,
                 borderRadius: BorderRadius.circular(28),
               ),
               child: Row(
                 children: [
                   // Delete button
                   IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
+                    icon: Icon(CupertinoIcons.delete, color: widget.stopButtonColor),
                     onPressed: _cancel,
                   ),
                   // Play/Pause button
@@ -355,7 +366,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
                     IconButton(
                       icon: Icon(
                         _audioController!.isPlaying ? Icons.pause : Icons.play_arrow,
-                        color: Colors.white,
+                        color: widget.iconWhileRecColor,
                       ),
                       onPressed: () {
                         if (_audioController != null) {
@@ -370,12 +381,12 @@ class _RecordMicButtonState extends State<RecordMicButton>
                     _state == RecordState.recording
                         ? _format(_duration)
                         : "${_format(_position)} / ${_format(_total ?? Duration.zero)}",
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                    style: TextStyle(color: widget.iconWhileRecColor, fontSize: 12),
                   ),
                   const SizedBox(width: 6),
                   Icon(
                     _state == RecordState.recording ? Icons.mic : Icons.volume_up,
-                    color: Colors.white,
+                    color: widget.iconWhileRecColor,
                     size: 18,
                   ),
                 ],
@@ -407,23 +418,23 @@ class _RecordMicButtonState extends State<RecordMicButton>
               if (_state == RecordState.recording) _stop();
             },
             child: Container(
-              width: widget.buttonRadius ?? 60,
-              height: widget.buttonRadius ?? 60,
+              width: widget.height,
+              height: widget.height,
               padding: widget.buttonPadding ?? EdgeInsets.zero,
               decoration: BoxDecoration(
                 color: showSend
-                    ? (widget.sendColor ?? Colors.blue)
+                    ? (widget.primaryColor)
                     : (_state == RecordState.idle
-                    ? (widget.micColor ?? Colors.green)
-                    : (widget.stopColor ?? Colors.red)),
-                shape: BoxShape.circle,
+                    ? (widget.primaryColor)
+                    : (widget.stopButtonColor)),
+                borderRadius: BorderRadius.circular(widget.buttonRadius??50)
               ),
               child: Center(
                 child: showSend
-                    ? (widget.sendIcon ?? const Icon(Icons.send, color: Colors.white))
+                    ? (widget.sendIcon ?? Icon(Icons.send, color: widget.iconColor))
                     : (_state == RecordState.idle
-                    ? (widget.micIcon ?? const Icon(Icons.mic, color: Colors.white))
-                    : (widget.stopIcon ?? const Icon(Icons.stop, color: Colors.white))),
+                    ? (widget.micIcon ?? Icon(Icons.mic, color: widget.iconColor))
+                    : (widget.stopIcon ?? Icon(Icons.stop, color: widget.iconColor))),
               ),
             ),
           ),
