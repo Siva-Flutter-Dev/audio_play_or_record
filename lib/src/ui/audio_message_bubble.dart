@@ -37,7 +37,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
     super.initState();
     _init();
   }
-  
+
 
   String _formatDuration(Duration d) {
     final minutes = d.inMinutes;
@@ -113,6 +113,24 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
     setState(() {});
   }
 
+  void _seekToPosition(double tapX, double width) {
+    if (_totalDuration == null) return;
+
+    final percent = (tapX / width).clamp(0.0, 1.0);
+    final targetMillis =
+    (_totalDuration!.inMilliseconds * percent).toInt();
+
+    final target = Duration(milliseconds: targetMillis);
+
+    _player.seek(target);
+
+    setState(() {
+      _currentPosition = target;
+      _progress = percent;
+    });
+  }
+
+
 
   @override
   void dispose() {
@@ -173,18 +191,38 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                           Expanded(
                             child: SizedBox(
                               height: waveformHeight,
-                              child: CustomPaint(
-                                painter: WaveformPainter(
-                                  amplitudes: _amps,
-                                  progress: _progress,
-                                  active: widget.config.activeWaveColor,
-                                  inactive: widget.config.inactiveWaveColor,
-                                  barWidth: widget.config.barWidth,
-                                  spacing: widget.config.spacing,
-                                ),
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  return GestureDetector(
+                                    behavior: HitTestBehavior.translucent,
+                                    onTapDown: (details) {
+                                      _seekToPosition(
+                                        details.localPosition.dx,
+                                        constraints.maxWidth,
+                                      );
+                                    },
+                                    onHorizontalDragUpdate: (details) {
+                                      _seekToPosition(
+                                        details.localPosition.dx,
+                                        constraints.maxWidth,
+                                      );
+                                    },
+                                    child: CustomPaint(
+                                      painter: WaveformPainter(
+                                        amplitudes: _amps,
+                                        progress: _progress,
+                                        active: widget.config.activeWaveColor,
+                                        inactive: widget.config.inactiveWaveColor,
+                                        barWidth: widget.config.barWidth,
+                                        spacing: widget.config.spacing,
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ),
+
                         ],
                       ),
                       SizedBox(height: screenHeight * 0.005),
@@ -232,8 +270,6 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
     );
   }
 
-
-
   Widget _buildAvatar() {
     final isUrl = _isUrl(widget.audioPath);
 
@@ -273,26 +309,5 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
       ],
     );
   }
-
-  Widget _buildStatus() {
-    if (!widget.config.showSeenStatus) return const SizedBox();
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          widget.config.time,
-          style: const TextStyle(fontSize: 10, color: Colors.grey),
-        ),
-        const SizedBox(width: 4),
-        Icon(
-          Icons.done_all,
-          size: 14,
-          color: widget.config.isSeen ? Colors.blue : Colors.grey,
-        ),
-      ],
-    );
-  }
-
 
 }
