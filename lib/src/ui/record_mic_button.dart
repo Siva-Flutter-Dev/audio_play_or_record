@@ -86,14 +86,14 @@ class _RecordMicButtonState extends State<RecordMicButton>
     if (widget.audioPath != null) _initPlayer(widget.audioPath!);
   }
 
-  @override
-  void didUpdateWidget(covariant RecordMicButton oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // If audioPath changes, init audio player again
-    if (widget.audioPath != null && widget.audioPath != oldWidget.audioPath) {
-      _initPlayer(widget.audioPath!);
-    }
-  }
+  // @override
+  // void didUpdateWidget(covariant RecordMicButton oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+  //   // If audioPath changes, init audio player again
+  //   if (widget.audioPath != null && widget.audioPath != oldWidget.audioPath) {
+  //     _initPlayer(widget.audioPath!);
+  //   }
+  // }
 
   Future<void> _initPlayer(String path) async {
     _audioController?.dispose();
