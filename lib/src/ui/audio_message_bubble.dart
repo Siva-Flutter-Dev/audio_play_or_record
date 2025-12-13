@@ -11,11 +11,13 @@ class AudioMessage extends StatefulWidget {
   final String audioPath;
   final String? profileImageUrl;
   final bool isSender;
+  final double waveWidth;
   final AudioMessageConfig config;
 
   const AudioMessage({
     super.key,
     required this.audioPath,
+    required this.waveWidth,
     this.isSender = true,
     this.config = const AudioMessageConfig(),
     this.profileImageUrl,
@@ -208,6 +210,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                                       );
                                     },
                                     child: CustomPaint(
+                                      size: Size(widget.waveWidth, 55),
                                       painter: WaveformPainter(
                                         amplitudes: _amps,
                                         progress: _progress,
