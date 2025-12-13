@@ -2,65 +2,103 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../controllers/audio_record_controller.dart';
 import '../recording/recording_overlay.dart';
+import 'package:flutter/services.dart';
+
+enum RecordState { idle, recording, locked }
 
 class RecordMicButton extends StatefulWidget {
   final bool hasMicPermission;
+  final bool enableHaptics;
+  final bool enableLock;
   final Function(String path) onRecorded;
 
-  const RecordMicButton({super.key, required this.onRecorded, this.hasMicPermission=false});
+  const RecordMicButton({
+    super.key,
+    required this.onRecorded,
+    this.hasMicPermission = false,
+    this.enableHaptics = false,
+    this.enableLock = false,
+  });
 
   @override
   State<RecordMicButton> createState() => _RecordMicButtonState();
 }
 
 class _RecordMicButtonState extends State<RecordMicButton> {
-  final _recorder = AudioRecorderController();
+  final AudioRecorderController _recorder = AudioRecorderController();
 
+  RecordState _state = RecordState.idle;
   Offset _start = Offset.zero;
-  bool _cancelled = false;
   Duration _duration = Duration.zero;
   Timer? _timer;
 
-  Future<void> _startRecording(LongPressStartDetails d) async {
-    if (!widget.hasMicPermission) {
-      debugPrint("Mic permission not granted");
-      return;
+  // ---------------- HAPTIC ----------------
+  void _haptic() {
+    if (widget.enableHaptics) {
+      HapticFeedback.mediumImpact();
     }
+  }
+
+  // ---------------- START ----------------
+  Future<void> _startRecord(LongPressStartDetails d) async {
+    if (!widget.hasMicPermission) return;
 
     _start = d.globalPosition;
-    _cancelled = false;
     _duration = Duration.zero;
 
     await _recorder.start();
+    _haptic();
 
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
       setState(() => _duration += const Duration(seconds: 1));
     });
+
+    setState(() => _state = RecordState.recording);
   }
 
-  Future<void> _stopRecording() async {
-    _timer?.cancel();
-    _timer = null;
+  // ---------------- MOVE ----------------
+  void _update(LongPressMoveUpdateDetails d) {
+    if (_state != RecordState.recording) return;
 
-    if (_cancelled) {
-      await _recorder.cancel();
+    final dx = _start.dx - d.globalPosition.dx;
+    final dy = _start.dy - d.globalPosition.dy;
+
+    // 🔒 LOCK (OPTIONAL)
+    if (widget.enableLock && dy > 60) {
+      _haptic();
+      setState(() => _state = RecordState.locked);
       return;
     }
+
+    // ❌ CANCEL (SLIDE LEFT)
+    if (dx > 80) {
+      _cancel();
+    }
+  }
+
+  // ---------------- STOP & SAVE ----------------
+  Future<void> _stopAndSave() async {
+    _timer?.cancel();
+    _timer = null;
 
     final path = await _recorder.stop();
     if (path != null && mounted) {
       widget.onRecorded(path);
     }
+
+    setState(() => _state = RecordState.idle);
   }
 
-  void _update(LongPressMoveUpdateDetails d) {
-    if (_start.dx - d.globalPosition.dx > 80) {
-      if (!_cancelled) {
-        setState(() => _cancelled = true);
-      }
-    }
+  // ---------------- CANCEL ----------------
+  Future<void> _cancel() async {
+    _haptic();
+    _timer?.cancel();
+    _timer = null;
+
+    await _recorder.cancel();
+    setState(() => _state = RecordState.idle);
   }
 
   @override
@@ -72,25 +110,55 @@ class _RecordMicButtonState extends State<RecordMicButton> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onLongPressStart: _startRecording,
-      onLongPressMoveUpdate: _update,
-      onLongPressEnd: (_) => _stopRecording(),
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return SizedBox(
+      height: 140, // fixed → hit-test safe
       child: Stack(
-        clipBehavior: Clip.none,
         alignment: Alignment.center,
+        clipBehavior: Clip.none,
         children: [
-          CircleAvatar(
-            radius: 28,
-            backgroundColor: Colors.green,
-            child: const Icon(Icons.mic, color: Colors.white),
+          // 🎤 MIC / STOP BUTTON
+          Positioned(
+            bottom: 0,
+            child: GestureDetector(
+              onLongPressStart:
+              _state == RecordState.idle ? _startRecord : null,
+              onLongPressMoveUpdate: _update,
+              onLongPressEnd: (_) {
+                if (_state == RecordState.recording) {
+                  _stopAndSave();
+                }
+              },
+              onTap:
+              _state == RecordState.locked ? _stopAndSave : null,
+              child: CircleAvatar(
+                radius: 28,
+                backgroundColor:
+                _state == RecordState.idle ? Colors.green : Colors.red,
+                child: Icon(
+                  _state == RecordState.idle
+                      ? Icons.mic
+                      : Icons.stop,
+                  color: Colors.white,
+                ),
+              ),
+            ),
           ),
-          if (_timer != null)
+
+          // 🎚 RECORDING OVERLAY
+          if (_state != RecordState.idle)
             Positioned(
-              top: -70,
-              child: RecordingOverlay(
-                duration: _duration,
-                waveColor: Colors.red,
+              top: 0,
+              child: SizedBox(
+                width: screenWidth * 0.9,
+                height: 56,
+                child: RecordingOverlay(
+                  duration: _duration,
+                  isLocked:
+                  widget.enableLock && _state == RecordState.locked,
+                  onDelete: _cancel,
+                ),
               ),
             ),
         ],
