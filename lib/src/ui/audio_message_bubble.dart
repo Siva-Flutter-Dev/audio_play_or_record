@@ -169,7 +169,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                             onPressed: () =>
                             _player.isPlaying ? _player.pause() : _player.play(),
                           ),
-                          SizedBox(width: screenWidth * 0.02),
+                          SizedBox(width: screenWidth * 0.08),
                           Expanded(
                             child: SizedBox(
                               height: waveformHeight,
@@ -215,6 +215,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
               ),
 
               // Avatar inside bubble
+              if(widget.profileImageUrl!=null)
               Positioned(
                 bottom: -avatarOffset,
                 right: -avatarOffset,
