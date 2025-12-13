@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../controllers/audio_record_controller.dart';
 import '../recording/recording_overlay.dart';
 
@@ -14,25 +15,36 @@ class RecordMicButton extends StatefulWidget {
 
 class _RecordMicButtonState extends State<RecordMicButton> {
   final _recorder = AudioRecorderController();
+
   Offset _start = Offset.zero;
   bool _cancelled = false;
   Duration _duration = Duration.zero;
   Timer? _timer;
 
-  void _startRecording(LongPressStartDetails d) async {
+  Future<bool> _ensureMicPermission() async {
+    final status = await Permission.microphone.request();
+    return status.isGranted;
+  }
+
+  Future<void> _startRecording(LongPressStartDetails d) async {
+    if (!await _ensureMicPermission()) return;
+
     _start = d.globalPosition;
     _cancelled = false;
     _duration = Duration.zero;
 
     await _recorder.start();
 
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
       setState(() => _duration += const Duration(seconds: 1));
     });
   }
 
   Future<void> _stopRecording() async {
     _timer?.cancel();
+    _timer = null;
 
     if (_cancelled) {
       await _recorder.cancel();
@@ -40,13 +52,24 @@ class _RecordMicButtonState extends State<RecordMicButton> {
     }
 
     final path = await _recorder.stop();
-    if (path != null) widget.onRecorded(path);
+    if (path != null && mounted) {
+      widget.onRecorded(path);
+    }
   }
 
   void _update(LongPressMoveUpdateDetails d) {
     if (_start.dx - d.globalPosition.dx > 80) {
-      setState(() => _cancelled = true);
+      if (!_cancelled) {
+        setState(() => _cancelled = true);
+      }
     }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _recorder.dispose();
+    super.dispose();
   }
 
   @override
@@ -56,6 +79,7 @@ class _RecordMicButtonState extends State<RecordMicButton> {
       onLongPressMoveUpdate: _update,
       onLongPressEnd: (_) => _stopRecording(),
       child: Stack(
+        clipBehavior: Clip.none,
         alignment: Alignment.center,
         children: [
           CircleAvatar(
