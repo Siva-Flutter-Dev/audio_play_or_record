@@ -14,6 +14,7 @@ class RecordMicButton extends StatefulWidget {
   final RecordButtonConfig config;
   final Function(String path) onRecorded;
   final VoidCallback onMessageSend;
+  final VoidCallback onDelete;
   final TextEditingController? textController;
   final InputDecoration? textFieldDecoration;
   final Widget? micIcon;
@@ -31,6 +32,7 @@ class RecordMicButton extends StatefulWidget {
     required this.onRecorded,
     required this.hasMicPermission,
     required this.onMessageSend,
+    required this.onDelete,
     this.isSendEnable = false,
     this.config = const RecordButtonConfig(),
     this.overlayWidth,
@@ -165,7 +167,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
 
     await _recorder.cancel();
     setState((){
-      widget.audioPath=null;
+      widget.onDelete.call();
       _state = RecordState.idle;
     });
   }
