@@ -12,21 +12,21 @@ class RecordingWave extends StatelessWidget {
     return Row(
       children: List.generate(18, (i) {
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 2),
-          width: 4,
-          height: Random().nextInt(30) + 10,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(8),
-          ),
-        )
+              margin: const EdgeInsets.symmetric(horizontal: 2),
+              width: 4,
+              height: Random().nextInt(30) + 10,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            )
             .animate(onPlay: (c) => c.repeat())
             .scaleY(
-          duration: 500.ms,
-          curve: Curves.easeInOut,
-          begin: 0.3,
-          end: 1,
-        );
+              duration: 500.ms,
+              curve: Curves.easeInOut,
+              begin: 0.3,
+              end: 1,
+            );
       }),
     );
   }

@@ -11,60 +11,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Home(),
-    );
+    return const MaterialApp(debugShowCheckedModeBanner: false, home: Home());
   }
 }
-
-// class HomePage extends StatefulWidget {
-//   const HomePage({super.key});
-//
-//   @override
-//   State<HomePage> createState() => _HomePageState();
-// }
-//
-// class _HomePageState extends State<HomePage> {
-//   bool _micGranted = false;
-//   String? audio;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _requestMicPermission();
-//   }
-//
-//   Future<void> _requestMicPermission() async {
-//     final status = await Permission.microphone.request();
-//     setState(() => _micGranted = status.isGranted);
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: const Text('Audio Recorder')),
-//       body: Center(
-//         child: RecordMicButton(
-//           hasMicPermission: _micGranted,
-//           audioPath: audio,
-//           isSendEnable: audio != null,
-//           onRecorded: (path) => setState(() => audio = path),
-//           onDelete: () => setState(() => audio = null),
-//           onMessageSend: () {
-//             debugPrint('Message sent');
-//           },
-//           config: const RecordButtonConfig(
-//             enableLock: true,
-//             enableHaptics: true,
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -79,24 +28,29 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(onPressed: (){
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context)=>HomeS())
-            );
-          }, icon: Icon(Icons.record_voice_over))
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomeS()),
+              );
+            },
+            icon: Icon(Icons.record_voice_over),
+          ),
         ],
       ),
       body: Center(
-        child: Container(
-          width: MediaQuery.of(context).size.width-120,
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width - 120,
           child: AudioMessage(
-            waveWidth: MediaQuery.of(context).size.width-120,
+            waveWidth: MediaQuery.of(context).size.width - 120,
             isSender: true,
             isProfile: false,
-            audioPath: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+            audioPath:
+                'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
             config: AudioMessageConfig(
-                waveStyle: WaveStyle.whatsapp,
-                showDuration: false
+              waveStyle: WaveStyle.whatsapp,
+              showDuration: false,
             ),
           ),
         ),
@@ -113,7 +67,6 @@ class HomeS extends StatefulWidget {
 }
 
 class _HomeSState extends State<HomeS> {
-
   bool _micGranted = false;
   final ctl = TextEditingController();
   String? audio;
@@ -134,9 +87,12 @@ class _HomeSState extends State<HomeS> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(onPressed: (){
-            Navigator.of(context).pop();
-          }, icon: Icon(Icons.record_voice_over))
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            icon: Icon(Icons.record_voice_over),
+          ),
         ],
       ),
       body: Center(
@@ -144,23 +100,20 @@ class _HomeSState extends State<HomeS> {
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.width,
           child: RecordMicButton(
-            onRecorded: (path){
+            onRecorded: (path) {
               setState(() {
-                audio=path;
+                audio = path;
               });
             },
-            onDelete: (){
+            onDelete: () {
               setState(() {
-                audio=null;
+                audio = null;
               });
             },
-            isSendEnable: ctl.text.isNotEmpty || audio !=null,
+            isSendEnable: ctl.text.isNotEmpty || audio != null,
             audioPath: audio,
-            onMessageSend: (){},
-            config: RecordButtonConfig(
-              enableLock: true,
-              enableHaptics: true,
-            ),
+            onMessageSend: () {},
+            config: RecordButtonConfig(enableLock: true, enableHaptics: true),
             hasMicPermission: _micGranted,
           ),
         ),
@@ -168,4 +121,3 @@ class _HomeSState extends State<HomeS> {
     );
   }
 }
-

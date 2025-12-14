@@ -110,7 +110,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
     final rnd = Random();
     return List.generate(
       bars,
-          (_) => (rnd.nextDouble() * 0.6 + 0.3).clamp(0.3, 0.9),
+      (_) => (rnd.nextDouble() * 0.6 + 0.3).clamp(0.3, 0.9),
     );
   }
 
@@ -198,8 +198,9 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
     final waveformHeight = screenHeight * 0.05; // 5% of screen height
 
     return Row(
-      mainAxisAlignment:
-      widget.isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
+      mainAxisAlignment: widget.isSender
+          ? MainAxisAlignment.end
+          : MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Flexible(
@@ -208,17 +209,17 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
             children: [
               // Audio message bubble
               CustomPaint(
-                painter: BubblePainter(
-                  widget.isSender,
-                  widget.backgroundColor,
-                ),
+                painter: BubblePainter(widget.isSender, widget.backgroundColor),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: bubblePaddingHorizontal,
-                    vertical: bubblePaddingVertical,
-                  ).copyWith(
-                    right: bubblePaddingHorizontal + avatarSize, // space for avatar
-                  ),
+                  padding:
+                      EdgeInsets.symmetric(
+                        horizontal: bubblePaddingHorizontal,
+                        vertical: bubblePaddingVertical,
+                      ).copyWith(
+                        right:
+                            bubblePaddingHorizontal +
+                            avatarSize, // space for avatar
+                      ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,36 +251,50 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                                   final barWidth = 3.0;
                                   final spacing = 2.0;
                                   final barCount =
-                                  (availableWidth / (barWidth + spacing))
-                                      .floor();
+                                      (availableWidth / (barWidth + spacing))
+                                          .floor();
 
                                   if (_amps.isNotEmpty) {
                                     // Generate scaled amplitudes for display
-                                    final amplitudes = List.generate(barCount, (i) {
+                                    final amplitudes = List.generate(barCount, (
+                                      i,
+                                    ) {
                                       final index =
-                                      (i * _amps.length / barCount).floor();
-                                      return _amps[index.clamp(0, _amps.length - 1)];
+                                          (i * _amps.length / barCount).floor();
+                                      return _amps[index.clamp(
+                                        0,
+                                        _amps.length - 1,
+                                      )];
                                     });
 
                                     return GestureDetector(
                                       behavior: HitTestBehavior.translucent,
                                       onTapDown: (details) => _seekToPosition(
-                                          details.localPosition.dx, availableWidth),
+                                        details.localPosition.dx,
+                                        availableWidth,
+                                      ),
                                       onHorizontalDragUpdate: (details) =>
                                           _seekToPosition(
-                                              details.localPosition.dx,
-                                              availableWidth),
+                                            details.localPosition.dx,
+                                            availableWidth,
+                                          ),
                                       child: CustomPaint(
                                         size: Size(availableWidth, 56),
                                         painter: WaveformPainter(
                                           amplitudes: amplitudes,
-                                          progress: (_totalDuration != null &&
-                                              _totalDuration!.inMilliseconds > 0)
-                                              ? (_currentPosition.inMilliseconds /
-                                              _totalDuration!.inMilliseconds)
+                                          progress:
+                                              (_totalDuration != null &&
+                                                  _totalDuration!
+                                                          .inMilliseconds >
+                                                      0)
+                                              ? (_currentPosition
+                                                        .inMilliseconds /
+                                                    _totalDuration!
+                                                        .inMilliseconds)
                                               : 0.0,
                                           active: widget.config.activeWaveColor,
-                                          inactive: widget.config.inactiveWaveColor,
+                                          inactive:
+                                              widget.config.inactiveWaveColor,
                                           barWidth: barWidth,
                                           spacing: spacing,
                                         ),
@@ -315,8 +330,9 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                             Text(
                               _formatDuration(_currentPosition),
                               style: TextStyle(
-                                fontSize: MediaQuery.textScalerOf(context)
-                                    .scale(11),
+                                fontSize: MediaQuery.textScalerOf(
+                                  context,
+                                ).scale(11),
                                 color: widget.iconColor,
                               ),
                             ),
@@ -326,8 +342,9 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                               Text(
                                 _formatDuration(_totalDuration!),
                                 style: TextStyle(
-                                  fontSize: MediaQuery.textScalerOf(context)
-                                      .scale(11),
+                                  fontSize: MediaQuery.textScalerOf(
+                                    context,
+                                  ).scale(11),
                                   color: widget.iconColor,
                                 ),
                               ),
@@ -359,11 +376,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
               ? NetworkImage(widget.profileImageUrl!)
               : null,
           child: (!isUrl || widget.profileImageUrl == null)
-              ? Icon(
-            Icons.person,
-            size: 18,
-            color: widget.iconColor,
-          )
+              ? Icon(Icons.person, size: 18, color: widget.iconColor)
               : null,
         ),
 
@@ -373,16 +386,12 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
           right: 0,
           child: CircleAvatar(
             radius: 7,
-            backgroundColor: widget.config.activeWaveColor, // WhatsApp mic bubble color
-            child: Icon(
-              Icons.mic,
-              size: 10,
-              color: widget.iconColor,
-            ),
+            backgroundColor:
+                widget.config.activeWaveColor, // WhatsApp mic bubble color
+            child: Icon(Icons.mic, size: 10, color: widget.iconColor),
           ),
         ),
       ],
     );
   }
-
 }

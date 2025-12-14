@@ -8,7 +8,6 @@ import '../models/record_button_config.dart';
 import '../painters/waveform_painter.dart';
 import 'package:flutter/services.dart';
 
-
 /// A button widget for recording audio with tap, long-press, or lock-to-record support.
 ///
 /// Displays an animated waveform while recording and can send or delete the
@@ -200,9 +199,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
       if (mounted) {
         setState(() {
           _position = p;
-          if (_total != null &&
-              p >= _total! &&
-              _audioController!.isPlaying) {
+          if (_total != null && p >= _total! && _audioController!.isPlaying) {
             _audioController?.pause();
             _audioController?.seek(Duration.zero);
             _position = Duration.zero;
@@ -249,7 +246,9 @@ class _RecordMicButtonState extends State<RecordMicButton>
     if (dx > 80 && _state == RecordState.recording) _cancel();
 
     // Lock recording if swiped up and locking enabled
-    if (widget.config.enableLock && dy > 60 && _state == RecordState.recording) {
+    if (widget.config.enableLock &&
+        dy > 60 &&
+        _state == RecordState.recording) {
       _haptic();
       setState(() => _state = RecordState.locked);
     }
@@ -313,8 +312,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
         if (_state == RecordState.recording) {
           /// Animated random waveform for recording
           amplitudes = List.generate(barCount, (_) => _rand.nextDouble());
-        }
-        else if (_audioController != null) {
+        } else if (_audioController != null) {
           /// Playback waveform: use pre-extracted amplitudes
           if (_waveformAmplitudes.isEmpty) {
             amplitudes = List.generate(barCount, (_) => _rand.nextDouble());
@@ -322,7 +320,10 @@ class _RecordMicButtonState extends State<RecordMicButton>
             /// Resize to fit the available width
             amplitudes = List.generate(barCount, (i) {
               final index = (i * _waveformAmplitudes.length / barCount).floor();
-              return _waveformAmplitudes[index.clamp(0, _waveformAmplitudes.length - 1)];
+              return _waveformAmplitudes[index.clamp(
+                0,
+                _waveformAmplitudes.length - 1,
+              )];
             });
           }
         } else {
@@ -372,7 +373,6 @@ class _RecordMicButtonState extends State<RecordMicButton>
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -387,65 +387,79 @@ class _RecordMicButtonState extends State<RecordMicButton>
           Expanded(
             child: (_state != RecordState.idle || _audioController != null)
                 ? Container(
-              width: widget.overlayWidth ?? width * 0.7,
-              height: 56,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: widget.backgroundAudio,
-                borderRadius: BorderRadius.circular(28),
-              ),
-              child: Row(
-                children: [
-                  // Delete button
-                  IconButton(
-                    icon: Icon(CupertinoIcons.delete, color: widget.stopButtonColor),
-                    onPressed: _cancel,
-                  ),
-                  // Play/Pause button
-                  if (_audioController != null)
-                    IconButton(
-                      icon: Icon(
-                        _audioController!.isPlaying ? Icons.pause : Icons.play_arrow,
-                        color: widget.iconWhileRecColor,
-                      ),
-                      onPressed: () {
-                        if (_audioController != null) {
-                          _audioController!.isPlaying
-                              ? _audioController!.pause()
-                              : _audioController!.play();
-                        }
-                      },
+                    width: widget.overlayWidth ?? width * 0.7,
+                    height: 56,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: widget.backgroundAudio,
+                      borderRadius: BorderRadius.circular(28),
                     ),
-                  Expanded(child: _wave()),
-                  Text(
-                    _state == RecordState.recording
-                        ? _format(_duration)
-                        : "${_format(_position)} / ${_format(_total ?? Duration.zero)}",
-                    style: TextStyle(color: widget.iconWhileRecColor, fontSize: 12),
-                  ),
-                  const SizedBox(width: 6),
-                  Icon(
-                    _state == RecordState.recording ? Icons.mic : Icons.volume_up,
-                    color: widget.iconWhileRecColor,
-                    size: 18,
-                  ),
-                ],
-              ),
-            )
+                    child: Row(
+                      children: [
+                        // Delete button
+                        IconButton(
+                          icon: Icon(
+                            CupertinoIcons.delete,
+                            color: widget.stopButtonColor,
+                          ),
+                          onPressed: _cancel,
+                        ),
+                        // Play/Pause button
+                        if (_audioController != null)
+                          IconButton(
+                            icon: Icon(
+                              _audioController!.isPlaying
+                                  ? Icons.pause
+                                  : Icons.play_arrow,
+                              color: widget.iconWhileRecColor,
+                            ),
+                            onPressed: () {
+                              if (_audioController != null) {
+                                _audioController!.isPlaying
+                                    ? _audioController!.pause()
+                                    : _audioController!.play();
+                              }
+                            },
+                          ),
+                        Expanded(child: _wave()),
+                        Text(
+                          _state == RecordState.recording
+                              ? _format(_duration)
+                              : "${_format(_position)} / ${_format(_total ?? Duration.zero)}",
+                          style: TextStyle(
+                            color: widget.iconWhileRecColor,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Icon(
+                          _state == RecordState.recording
+                              ? Icons.mic
+                              : Icons.volume_up,
+                          color: widget.iconWhileRecColor,
+                          size: 18,
+                        ),
+                      ],
+                    ),
+                  )
                 : TextField(
-              controller: _controller,
-              decoration: widget.textFieldDecoration ??
-                  InputDecoration(
-                    hintText: 'Type a message',
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    controller: _controller,
+                    decoration:
+                        widget.textFieldDecoration ??
+                        InputDecoration(
+                          hintText: 'Type a message',
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                        ),
                   ),
-            ),
           ),
           const SizedBox(width: 12),
           GestureDetector(
@@ -465,16 +479,19 @@ class _RecordMicButtonState extends State<RecordMicButton>
                 color: showSend
                     ? (widget.primaryColor)
                     : (_state == RecordState.idle
-                    ? (widget.primaryColor)
-                    : (widget.stopButtonColor)),
-                borderRadius: BorderRadius.circular(widget.buttonRadius??50)
+                          ? (widget.primaryColor)
+                          : (widget.stopButtonColor)),
+                borderRadius: BorderRadius.circular(widget.buttonRadius ?? 50),
               ),
               child: Center(
                 child: showSend
-                    ? (widget.sendIcon ?? Icon(Icons.send, color: widget.iconColor))
+                    ? (widget.sendIcon ??
+                          Icon(Icons.send, color: widget.iconColor))
                     : (_state == RecordState.idle
-                    ? (widget.micIcon ?? Icon(Icons.mic, color: widget.iconColor))
-                    : (widget.stopIcon ?? Icon(Icons.stop, color: widget.iconColor))),
+                          ? (widget.micIcon ??
+                                Icon(Icons.mic, color: widget.iconColor))
+                          : (widget.stopIcon ??
+                                Icon(Icons.stop, color: widget.iconColor))),
               ),
             ),
           ),

@@ -1,8 +1,5 @@
 class WaveformConverter {
-  static List<double> toAmplitudes(
-      List<double> samples,
-      int bars,
-      ) {
+  static List<double> toAmplitudes(List<double> samples, int bars) {
     if (samples.isEmpty) return List.filled(bars, 0.3);
 
     final chunkSize = (samples.length / bars).floor();
@@ -29,4 +26,3 @@ class WaveformConverter {
     }).toList();
   }
 }
-

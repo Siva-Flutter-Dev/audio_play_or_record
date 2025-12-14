@@ -175,7 +175,9 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                 ),
                 onPressed: () {
                   if (_audioController != null) {
-                    isPlaying ? _audioController!.pause() : _audioController!.play();
+                    isPlaying
+                        ? _audioController!.pause()
+                        : _audioController!.play();
                   }
                 },
               ),

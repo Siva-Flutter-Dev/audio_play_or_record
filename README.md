@@ -1,8 +1,8 @@
-🎧 `audio_play_or_record`
+## 🎧 `audio_play_or_record`
 
 A Flutter package for recording and playing audio messages with interactive waveform visualization, seek support, and chat-style UI inspired by WhatsApp.
 
-✨ Features
+## ✨ Features
 
 * 🎙 Audio Recording – Supports tap or long-press to record.
 
@@ -13,8 +13,6 @@ A Flutter package for recording and playing audio messages with interactive wave
 * 🎚 Animated Waveform – Real-time animation while recording audio.
 
 * 🧩 Fully Customizable UI – Customize colors, icons, layouts, and styles to fit your app.
-
-📸 Screenshots
 
 
 ## 📸 Screenshots
@@ -43,7 +41,7 @@ A Flutter package for recording and playing audio messages with interactive wave
 </table>
 
 
-📦 Installation
+## 📦 Installation
 
 Add this to your pubspec.yaml:
 
@@ -55,15 +53,15 @@ Then run:
 
 `flutter pub get`
 
-🔐 Permissions
-✅ Android
+### 🔐 Permissions
+#### ✅ Android
 
 📍 android/app/src/main/AndroidManifest.xml
 ```
 <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 <uses-permission android:name="android.permission.INTERNET"/>
 ```
-🍎 iOS
+#### 🍎 iOS
 
 📍 ios/Runner/Info.plist
 ```
@@ -77,7 +75,7 @@ Then run:
     </dict>
 ```
 
-🎯 Runtime Permission (Android)
+### 🎯 Runtime Permission (Android)
 
 Request microphone permission in the host app:
 ```
@@ -89,9 +87,9 @@ await Permission.microphone.request();
 ℹ️ `permission_handler` is required only in the host app, not inside this package.
 
 
-🧱 Basic Usage
+## 🧱 Basic Usage
 
-🔊 Audio Message Player
+### 🔊 Audio Message Player
 ```
 import 'package:flutter/material.dart';
 import 'package:audio_play_or_record/audio_play_or_record.dart';
@@ -141,7 +139,7 @@ class MyApp extends StatelessWidget {
 }
 ```
 
-🎤 Record Mic Button
+### 🎤 Record Mic Button
 ```
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -210,7 +208,7 @@ class _HomePageState extends State<HomePage> {
 }
 ```
 
-🎨 Customization
+## 🎨 Customization
 
 * You can fully tailor the package to match your app’s style and behavior:
 
@@ -223,13 +221,13 @@ class _HomePageState extends State<HomePage> {
 * Recording Behavior – Choose between tap, long-press, or lock-to-record modes.
 
 
-📱 Supported Platforms
+## 📱 Supported Platforms
 
 * ✅ Android – Fully tested on devices and emulators.
 
 * ✅ iOS – Works on real devices (requires microphone permission).
 
-🧰 Dependencies & Usage Notes
+## 🧰 Dependencies & Usage Notes
 
 * `dart:io` – Handles audio files and file system operations.
 
@@ -239,7 +237,7 @@ class _HomePageState extends State<HomePage> {
 
 * `permission_handler` – Not included in the package. The host app must request microphone permission at runtime if needed.
 
-📄 License
+## 📄 License
 ```
 MIT License
 
