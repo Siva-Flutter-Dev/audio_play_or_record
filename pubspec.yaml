@@ -1,10 +1,30 @@
 name: audio_play_or_record
-description: "A Flutter package for recording, playing audio and displaying
-  interactive waveform with seek support"
-version: 1.0.1
+description: "A Flutter package for recording and playing audio messages with interactive waveform visualization, seek support, and chat-style UI."
+version: 1.0.2
 homepage: https://github.com/Siva-Flutter-Dev/audio_play_or_record
 repository: https://github.com/Siva-Flutter-Dev/audio_play_or_record
 documentation: https://github.com/Siva-Flutter-Dev/audio_play_or_record#readme
+license: MIT
+keywords:
+  - audio
+  - record
+  - playback
+  - waveform
+  - chat
+  - flutter
+  - messaging
+  - voice
+  - voice-message
+  - recorder
+  - microphone
+  - audio-player
+  - audio-recorder
+  - audio-widget
+  - sound
+  - media
+  - realtime
+  - animation
+  - ui
 
 environment:
   sdk: ^3.10.1

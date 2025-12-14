@@ -1,26 +1,47 @@
 🎧 audio_play_or_record
 
-A Flutter package for recording audio, playing it back, and displaying
-interactive waveforms with seek support (WhatsApp-style).
+A Flutter package for recording and playing audio messages with interactive waveform visualization, seek support, and chat-style UI inspired by WhatsApp.
 
 ✨ Features
 
-🎙 Audio recording (tap / long-press)
+* 🎙 Audio Recording – Supports tap or long-press to record.
 
-▶️ Audio playback with waveform
+* ▶️ Audio Playback with Waveform – Visualize your recordings with interactive waveforms.
 
-⏱ Tap & drag waveform to seek
+* ⏱ Seekable Waveform – Tap or drag the waveform to jump to any position.
 
-🎚 Animated waveform while recording
+* 🎚 Animated Waveform – Real-time animation while recording audio.
 
-🧩 Fully customizable UI (colors, icons, layout)
+* 🧩 Fully Customizable UI – Customize colors, icons, layouts, and styles to fit your app.
 
 📸 Screenshots
 
-![img.png](img.png)
-![img_1.png](img_1.png)
-![img_2.png](img_2.png)
-![img_3.png](img_3.png)
+
+## 📸 Screenshots
+
+<table align="center">
+  <tr>
+    <td align="center" width="50%">
+      <img src="img_4.png" width="1290" alt="Audio UI"/><br/><br/>
+      <b>Audio</b>
+    </td>
+    <td align="center" width="50%">
+      <img src="img_5.png" width="1290" alt="Input Field"/><br/><br/>
+      <b>Input Field</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="img_6.png" width="1290" alt="Audio Recording"/><br/><br/>
+      <b>Audio Recording</b>
+    </td>
+    <td align="center" width="50%">
+      <img src="img_7.png" width="1290" alt="Voice Preview"/><br/><br/>
+      <b>Voice Preview</b>
+    </td>
+  </tr>
+</table>
+
 
 📦 Installation
 
@@ -37,24 +58,23 @@ Then run:
 🔐 Permissions
 ✅ Android
 
-```
 📍 android/app/src/main/AndroidManifest.xml
-
+```
 <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 <uses-permission android:name="android.permission.INTERNET"/>
 ```
 🍎 iOS
-```
-📍 ios/Runner/Info.plist
 
+📍 ios/Runner/Info.plist
+```
 <key>NSMicrophoneUsageDescription</key>
-<string>This app needs microphone access to record audio.</string>
+    <string>This app needs microphone access to record audio.</string>
 
 <key>NSAppTransportSecurity</key>
-<dict>
-<key>NSAllowsArbitraryLoads</key>
-<true/>
-</dict>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
 ```
 
 🎯 Runtime Permission (Android)
@@ -70,58 +90,154 @@ await Permission.microphone.request();
 
 
 🧱 Basic Usage
+
 🔊 Audio Message Player
 ```
-AudioMessage(
-audioPath: path,
-config: AudioMessageConfig(
-activeWaveColor: Colors.greenAccent,
-inactiveWaveColor: Colors.black26,
-),
-)
+import 'package:flutter/material.dart';
+import 'package:audio_play_or_record/audio_play_or_record.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Audio Playback',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+      ),
+      home: Scaffold(
+        appBar: AppBar(
+          actions: [
+            IconButton(onPressed: (){
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context)=>HomeS())
+              );
+            }, icon: Icon(Icons.record_voice_over))
+          ],
+        ),
+        body: Center(
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width-120,
+            child: AudioMessage(
+              waveWidth: MediaQuery.of(context).size.width-120,
+              isSender: true,
+              isProfile: false,
+              audioPath: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+              config: AudioMessageConfig(
+                  showDuration: false
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 ```
 
 🎤 Record Mic Button
 ```
-RecordMicButton(
-hasMicPermission: true,
-onRecorded: (path) {
-print("Recorded file: $path");
-},
-onMessageSend: () {},
-)
+import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:audio_play_or_record/audio_play_or_record.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool _micGranted = false;
+  String? audio;
+
+  @override
+  void initState() {
+    super.initState();
+    _requestMicPermission();
+  }
+
+  Future<void> _requestMicPermission() async {
+    final status = await Permission.microphone.request();
+    setState(() => _micGranted = status.isGranted);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Audio Recorder')),
+      body: Center(
+        child: RecordMicButton(
+          hasMicPermission: _micGranted,
+          audioPath: audio,
+          isSendEnable: audio != null,
+          onRecorded: (path) => setState(() => audio = path),
+          onDelete: () => setState(() => audio = null),
+          onMessageSend: () {
+            debugPrint('Message sent');
+          },
+          config: const RecordButtonConfig(
+            enableLock: true,
+            enableHaptics: true,
+          ),
+        ),
+      ),
+    );
+  }
+}
 ```
 
 🎨 Customization
 
-You can customize:
-```
-Waveform colors
+* You can fully tailor the package to match your app’s style and behavior:
 
-Bar width & spacing
+* Waveform Colors – Customize the colors of recording and playback waveforms.
 
-Icons (mic, play, pause, delete)
+* Icons – Use your own icons for mic, play, pause, and delete actions.
 
-Button size & padding
+* Button Size & Padding – Modify the size and padding of recording/playback buttons.
 
-Recording behavior (tap / long-press / lock)
-```
+* Recording Behavior – Choose between tap, long-press, or lock-to-record modes.
+
+
 📱 Supported Platforms
 
-✅ Android
+* ✅ Android – Fully tested on devices and emulators.
 
-✅ iOS
+* ✅ iOS – Works on real devices (requires microphone permission).
 
-🛠 Dependencies Used
-```
-* dart:io – For handling audio files and file system operations.
+🧰 Dependencies & Usage Notes
 
-* flutter/material – For UI widgets like buttons, icons, and layout.
+* `dart:io` – Handles audio files and file system operations.
 
-* path_provider – To access device directories for saving audio files.
+* `flutter/material` – Provides UI widgets such as buttons, icons, and layouts.
 
-* permission_handler – Not included in the package; the host app must request microphone permission at runtime if needed.
-```
+* `path_provider` – Accesses device directories to save recorded audio files.
+
+* `permission_handler` – Not included in the package. The host app must request microphone permission at runtime if needed.
 
 📄 License
 ```
