@@ -1,4 +1,4 @@
-🎧 audio_play_or_record
+🎧 `audio_play_or_record`
 
 A Flutter package for recording and playing audio messages with interactive waveform visualization, seek support, and chat-style UI inspired by WhatsApp.
 
@@ -86,7 +86,7 @@ import 'package:permission_handler/permission_handler.dart';
 await Permission.microphone.request();
 ```
 
-ℹ️ permission_handler is required only in the host app, not inside this package.
+ℹ️ `permission_handler` is required only in the host app, not inside this package.
 
 
 🧱 Basic Usage
