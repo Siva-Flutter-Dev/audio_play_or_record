@@ -12,11 +12,10 @@ packages:
   audio_play_or_record:
     dependency: "direct main"
     description:
-      name: audio_play_or_record
-      sha256: "5eedb9765a3a3025da2c66721f1d3d91ec29758d86e0ba5439ccf5ed8e355904"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
+      path: ".."
+      relative: true
+    source: path
+    version: "1.0.2"
   audio_session:
     dependency: transitive
     description:
