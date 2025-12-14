@@ -1,0 +1,15 @@
+# Ignore all build outputs
+**/build/
+
+# Example app artifacts
+example/pubspec.lock
+
+# iOS workspace files (generated)
+example/ios/**/project.xcworkspace/
+example/ios/**/Runner.xcworkspace/
+
+# Android reports
+example/android/build/reports/
+
+# IDE / OS noise
+**/.DS_Store
