@@ -29,6 +29,9 @@ class AudioMessage extends StatefulWidget {
   /// Whether to show a profile image/avatar next to the message.
   final bool isProfile;
 
+  /// Whether to show a profile image/avatar next to the message.
+  final bool withBackground;
+
   /// Width of the waveform widget.
   final double waveWidth;
 
@@ -58,6 +61,7 @@ class AudioMessage extends StatefulWidget {
     required this.waveWidth,
     this.isSender = true,
     this.isProfile = true,
+    this.withBackground = true,
     this.config = const AudioMessageConfig(),
     this.profileImageUrl,
     this.iconColor = Colors.black,
@@ -209,7 +213,9 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
             children: [
               // Audio message bubble
               CustomPaint(
-                painter: BubblePainter(widget.isSender, widget.backgroundColor),
+                painter: widget.withBackground
+                    ? BubblePainter(widget.isSender, widget.backgroundColor)
+                    : null,
                 child: Padding(
                   padding:
                       EdgeInsets.symmetric(
@@ -253,7 +259,6 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                                   final barCount =
                                       (availableWidth / (barWidth + spacing))
                                           .floor();
-
                                   if (_amps.isNotEmpty) {
                                     // Generate scaled amplitudes for display
                                     final amplitudes = List.generate(barCount, (
@@ -309,6 +314,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                           ),
 
                           // Optional profile avatar
+                          if (widget.isProfile) SizedBox(width: 5),
                           if (widget.isProfile)
                             SizedBox(
                               width: avatarSize,
@@ -322,7 +328,10 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
 
                       // Row: Current duration / total duration
                       Padding(
-                        padding: const EdgeInsets.only(left: 16),
+                        padding: EdgeInsets.only(
+                          left: 16,
+                          right: widget.isProfile ? 26 : 2,
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -376,7 +385,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
               ? NetworkImage(widget.profileImageUrl!)
               : null,
           child: (!isUrl || widget.profileImageUrl == null)
-              ? Icon(Icons.person, size: 18, color: widget.iconColor)
+              ? Icon(Icons.person, size: 18, color: widget.backgroundColor)
               : null,
         ),
 
@@ -388,7 +397,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
             radius: 7,
             backgroundColor:
                 widget.config.activeWaveColor, // WhatsApp mic bubble color
-            child: Icon(Icons.mic, size: 10, color: widget.iconColor),
+            child: Icon(Icons.mic, size: 10, color: widget.backgroundColor),
           ),
         ),
       ],

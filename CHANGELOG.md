@@ -51,3 +51,26 @@ All notable changes to this project are documented in this file.
 - Applied `dart format` to all source files
 - Resolved pana static analysis formatting issues
 - Improved code consistency and lint compliance
+
+## [1.0.4] - 2025-12-14
+### Added
+
+* Introduced additional customization options for UI components.
+
+* Added new configurable widgets to improve flexibility and reuse.
+
+* Exposed more public properties for styling and behavior control.
+
+### Changed
+
+* Refactored existing widgets to support enhanced customization.
+
+* Improved widget APIs for better extensibility and consistency.
+
+* Updated default styles while preserving backward compatibility where possible.
+
+### Improved
+
+* Enhanced overall UI configurability without affecting existing usage.
+
+* Minor internal refactors to improve maintainability and readability.

@@ -30,17 +30,17 @@ class BubblePainter extends CustomPainter {
 
     /// Draw the bubble "tail"
     final path = Path();
-    if (isSender) {
-      path
-        ..moveTo(size.width - 6, 20)
-        ..lineTo(size.width, 25)
-        ..lineTo(size.width - 6, 30);
-    } else {
-      path
-        ..moveTo(6, 20)
-        ..lineTo(0, 25)
-        ..lineTo(6, 30);
-    }
+    // if (isSender) {
+    //   path
+    //     ..moveTo(size.width - 6, 20)
+    //     ..lineTo(size.width, 25)
+    //     ..lineTo(size.width - 6, 30);
+    // } else {
+    //   path
+    //     ..moveTo(6, 20)
+    //     ..lineTo(0, 25)
+    //     ..lineTo(6, 30);
+    // }
     path.close();
     canvas.drawPath(path, paint);
   }

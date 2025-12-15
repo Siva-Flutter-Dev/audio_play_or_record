@@ -30,6 +30,9 @@ class RecordMicButton extends StatefulWidget {
   /// Height of the main recording button.
   final double height;
 
+  /// Height of the main recording button.
+  final double? widgetSpacing;
+
   /// Configuration for recording behavior, haptics, locking, and animations.
   final RecordButtonConfig config;
 
@@ -47,11 +50,17 @@ class RecordMicButton extends StatefulWidget {
   /// Optional text controller for an associated input field.
   final TextEditingController? textController;
 
-  /// Optional decoration for the input field.
-  final InputDecoration? textFieldDecoration;
+  /// Optional text field for an associated input field.
+  final Widget textField;
 
   /// Optional custom widget for the mic icon.
   final Widget? micIcon;
+
+  /// leading icon this optional chat attachment or something
+  final Widget? leadingIcon;
+
+  /// leading icon this optional chat attachment or something
+  final VoidCallback? onLeading;
 
   /// Path of the currently recorded audio file.
   final String? audioPath;
@@ -99,12 +108,15 @@ class RecordMicButton extends StatefulWidget {
     required this.hasMicPermission,
     required this.onMessageSend,
     required this.onDelete,
+    required this.textField,
     this.isSendEnable = false,
     this.height = 62,
+    this.widgetSpacing,
     this.config = const RecordButtonConfig(),
     this.overlayWidth,
     this.textController,
-    this.textFieldDecoration,
+    this.leadingIcon,
+    this.onLeading,
     this.micIcon,
     this.stopIcon,
     this.sendIcon,
@@ -274,7 +286,6 @@ class _RecordMicButtonState extends State<RecordMicButton>
     _haptic();
     _timer?.cancel();
     _timer = null;
-
     await _recorder.cancel();
     setState(() {
       widget.onDelete.call();
@@ -381,14 +392,34 @@ class _RecordMicButtonState extends State<RecordMicButton>
     return SizedBox(
       height: widget.height,
       child: Row(
+        spacing: widget.widgetSpacing ?? 12,
         mainAxisAlignment: widget.config.micAlignment,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          if (widget.leadingIcon != null &&
+              _audioController == null &&
+              _state == RecordState.idle)
+            InkWell(
+              splashColor: Colors.transparent,
+              onTap: widget.onLeading,
+              child: Container(
+                width: widget.height,
+                height: widget.height,
+                padding: widget.buttonPadding ?? EdgeInsets.zero,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(
+                    widget.buttonRadius ?? 50,
+                  ),
+                ),
+                child: widget.leadingIcon ?? SizedBox.shrink(),
+              ),
+            ),
+
           Expanded(
             child: (_state != RecordState.idle || _audioController != null)
                 ? Container(
                     width: widget.overlayWidth ?? width * 0.7,
-                    height: 56,
+                    height: widget.height,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
                       color: widget.backgroundAudio,
@@ -397,6 +428,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
                     child: Row(
                       children: [
                         // Delete button
+                        //if(widget.leadingIcon==null)
                         IconButton(
                           icon: Icon(
                             CupertinoIcons.delete,
@@ -442,26 +474,8 @@ class _RecordMicButtonState extends State<RecordMicButton>
                       ],
                     ),
                   )
-                : TextField(
-                    controller: _controller,
-                    decoration:
-                        widget.textFieldDecoration ??
-                        InputDecoration(
-                          hintText: 'Type a message',
-                          filled: true,
-                          fillColor: Colors.grey[200],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                  ),
+                : SizedBox(height: widget.height, child: widget.textField),
           ),
-          const SizedBox(width: 12),
           GestureDetector(
             onTap: showSend
                 ? widget.onMessageSend

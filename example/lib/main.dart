@@ -26,6 +26,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey,
       appBar: AppBar(
         actions: [
           IconButton(
@@ -46,10 +47,14 @@ class _HomeState extends State<Home> {
             waveWidth: MediaQuery.of(context).size.width - 120,
             isSender: true,
             isProfile: false,
+            iconColor: Colors.white,
+            backgroundColor: Colors.blueAccent,
             audioPath:
                 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
             config: AudioMessageConfig(
               waveStyle: WaveStyle.whatsapp,
+              activeWaveColor: Colors.white,
+              animationSpeed: 5,
               showDuration: false,
             ),
           ),
@@ -85,6 +90,7 @@ class _HomeSState extends State<HomeS> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         actions: [
           IconButton(
@@ -100,16 +106,39 @@ class _HomeSState extends State<HomeS> {
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.width,
           child: RecordMicButton(
+            height: 48,
+            leadingIcon: Container(
+              padding: EdgeInsets.zero,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Center(child: Icon(Icons.add, color: Colors.blue)),
+            ),
             onRecorded: (path) {
               setState(() {
                 audio = path;
               });
             },
+            onLeading: () {
+              print("object");
+            },
             onDelete: () {
               setState(() {
                 audio = null;
+                ctl.clear();
               });
             },
+            textField: TextField(
+              controller: ctl,
+              onChanged: (v) {
+                setState(() {});
+              },
+              decoration: InputDecoration(border: OutlineInputBorder()),
+            ),
+            buttonRadius: 14,
+            textController: ctl,
             isSendEnable: ctl.text.isNotEmpty || audio != null,
             audioPath: audio,
             onMessageSend: () {},
