@@ -434,22 +434,22 @@ class _RecordMicButtonState extends State<RecordMicButton>
                       children: [
                         // Delete button
                         //if(widget.leadingIcon==null)
-                        widget.audioDeleteIcon!=null
-                        ?GestureDetector(
-                          onTap:_cancel,
-                          child: SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: widget.audioDeleteIcon,
-                          ),
-                        )
-                        :IconButton(
-                          icon: Icon(
-                            CupertinoIcons.delete,
-                            color: widget.stopButtonColor,
-                          ),
-                          onPressed: _cancel,
-                        ),
+                        widget.audioDeleteIcon != null
+                            ? GestureDetector(
+                                onTap: _cancel,
+                                child: SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: widget.audioDeleteIcon,
+                                ),
+                              )
+                            : IconButton(
+                                icon: Icon(
+                                  CupertinoIcons.delete,
+                                  color: widget.stopButtonColor,
+                                ),
+                                onPressed: _cancel,
+                              ),
                         // Play/Pause button
                         if (_audioController != null)
                           IconButton(

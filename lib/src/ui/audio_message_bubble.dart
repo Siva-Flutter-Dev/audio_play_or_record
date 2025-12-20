@@ -301,7 +301,8 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                                           inactive:
                                               widget.config.inactiveWaveColor,
                                           barWidth: barWidth,
-                                          barHeightValue: widget.config.barHeight,
+                                          barHeightValue:
+                                              widget.config.barHeight,
                                           spacing: spacing,
                                         ),
                                       ),
@@ -325,15 +326,13 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                         ],
                       ),
 
-                     // SizedBox(height: screenHeight * 0.002),
+                      // SizedBox(height: screenHeight * 0.002),
 
                       // Row: Current duration / total duration
                       Padding(
-                        padding: EdgeInsets.only(
-                          left: 16,
-                        ),
+                        padding: EdgeInsets.only(left: 16),
                         child: Text(
-                          "${_formatDuration(_currentPosition)} / ${_formatDuration(_totalDuration??Duration.zero)}",
+                          "${_formatDuration(_currentPosition)} / ${_formatDuration(_totalDuration ?? Duration.zero)}",
                           style: TextStyle(
                             fontSize: MediaQuery.textScalerOf(
                               context,

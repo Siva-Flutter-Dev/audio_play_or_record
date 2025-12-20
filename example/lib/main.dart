@@ -140,14 +140,14 @@ class _HomeSState extends State<HomeS> {
               },
               decoration: InputDecoration(
                 // isDense: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(9),
-                    borderSide: BorderSide(color: Colors.black12)
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(9),
-                      borderSide: BorderSide(color: Colors.black12)
-                  )
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(9),
+                  borderSide: BorderSide(color: Colors.black12),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(9),
+                  borderSide: BorderSide(color: Colors.black12),
+                ),
               ),
             ),
             buttonRadius: 14,
@@ -156,9 +156,9 @@ class _HomeSState extends State<HomeS> {
             audioPath: audio,
             onMessageSend: () {},
             config: RecordButtonConfig(
-                enableLock: true,
-                enableHaptics: true,
-              micAlignment: MainAxisAlignment.end
+              enableLock: true,
+              enableHaptics: true,
+              micAlignment: MainAxisAlignment.end,
             ),
             hasMicPermission: _micGranted,
           ),

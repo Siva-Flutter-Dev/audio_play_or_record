@@ -49,7 +49,7 @@ class RecordButtonConfig {
     this.enableHaptics = false,
     this.enableTapRecord = true,
     this.audioPath,
-    this.barHeight=3,
+    this.barHeight = 3,
     this.waveDirection = WaveDirection.left,
     this.micAlignment = MainAxisAlignment.spaceBetween,
   });

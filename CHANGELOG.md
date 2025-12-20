@@ -82,3 +82,7 @@ All notable changes to this project are documented in this file.
 ### Improved
 * Input alignment and adaptive behavior.
 * Pattern detection and performance.
+
+## [1.0.6] - 2025-12-20
+### Improved
+* Bug Fixed for alignment issue and height issue
