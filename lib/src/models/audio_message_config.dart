@@ -10,6 +10,9 @@ class AudioMessageConfig {
   /// Width of each waveform bar (used for `bars` or `whatsapp` styles).
   final double barWidth;
 
+  /// Width of each waveform bar (used for `bars` or `whatsapp` styles).
+  final double barHeight;
+
   /// Space between waveform bars.
   final double spacing;
 
@@ -40,6 +43,7 @@ class AudioMessageConfig {
   const AudioMessageConfig({
     this.waveStyle = WaveStyle.whatsapp,
     this.barWidth = 3,
+    this.barHeight = 3,
     this.spacing = 2,
     this.animationSpeed = 1.0,
     this.showPlaybackSpeed = false,

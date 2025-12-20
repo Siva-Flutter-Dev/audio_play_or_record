@@ -254,8 +254,8 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                               child: LayoutBuilder(
                                 builder: (context, constraints) {
                                   final availableWidth = constraints.maxWidth;
-                                  final barWidth = 3.0;
-                                  final spacing = 2.0;
+                                  final barWidth = widget.config.barWidth;
+                                  final spacing = widget.config.spacing;
                                   final barCount =
                                       (availableWidth / (barWidth + spacing))
                                           .floor();
@@ -284,7 +284,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                                             availableWidth,
                                           ),
                                       child: CustomPaint(
-                                        size: Size(availableWidth, 56),
+                                        size: Size(availableWidth, 3),
                                         painter: WaveformPainter(
                                           amplitudes: amplitudes,
                                           progress:
@@ -301,6 +301,7 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                                           inactive:
                                               widget.config.inactiveWaveColor,
                                           barWidth: barWidth,
+                                          barHeightValue: widget.config.barHeight,
                                           spacing: spacing,
                                         ),
                                       ),
@@ -324,40 +325,21 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                         ],
                       ),
 
-                      SizedBox(height: screenHeight * 0.002),
+                     // SizedBox(height: screenHeight * 0.002),
 
                       // Row: Current duration / total duration
                       Padding(
                         padding: EdgeInsets.only(
                           left: 16,
-                          right: widget.isProfile ? 26 : 2,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // Current playback position
-                            Text(
-                              _formatDuration(_currentPosition),
-                              style: TextStyle(
-                                fontSize: MediaQuery.textScalerOf(
-                                  context,
-                                ).scale(11),
-                                color: widget.iconColor,
-                              ),
-                            ),
-
-                            // Total audio duration
-                            if (_totalDuration != null)
-                              Text(
-                                _formatDuration(_totalDuration!),
-                                style: TextStyle(
-                                  fontSize: MediaQuery.textScalerOf(
-                                    context,
-                                  ).scale(11),
-                                  color: widget.iconColor,
-                                ),
-                              ),
-                          ],
+                        child: Text(
+                          "${_formatDuration(_currentPosition)} / ${_formatDuration(_totalDuration??Duration.zero)}",
+                          style: TextStyle(
+                            fontSize: MediaQuery.textScalerOf(
+                              context,
+                            ).scale(11),
+                            color: widget.iconColor,
+                          ),
                         ),
                       ),
                     ],

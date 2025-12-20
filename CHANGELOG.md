@@ -74,3 +74,11 @@ All notable changes to this project are documented in this file.
 * Enhanced overall UI configurability without affecting existing usage.
 
 * Minor internal refactors to improve maintainability and readability.
+
+## [1.0.5] - 2025-12-20
+### Added
+* New public properties for layout, preview, and overlay customization.
+
+### Improved
+* Input alignment and adaptive behavior.
+* Pattern detection and performance.

@@ -136,8 +136,9 @@ class _RecordingOverlayState extends State<RecordingOverlay>
           inactive: Colors.redAccent,
           barWidth: 3,
           spacing: 2,
+          barHeightValue: 3
         ),
-        size: Size(double.infinity, 56),
+        size: Size(double.infinity, 3),
       );
     } else {
       return SizedBox.shrink();

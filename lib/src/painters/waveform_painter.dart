@@ -22,6 +22,9 @@ class WaveformPainter extends CustomPainter {
   /// Width of each waveform bar.
   final double barWidth;
 
+  /// Width of each waveform bar.
+  final double barHeightValue;
+
   /// Space between waveform bars.
   final double spacing;
 
@@ -34,6 +37,7 @@ class WaveformPainter extends CustomPainter {
     required this.active,
     required this.inactive,
     required this.barWidth,
+    required this.barHeightValue,
     required this.spacing,
   });
 
@@ -55,8 +59,8 @@ class WaveformPainter extends CustomPainter {
       final x = startX + i * (barWidth + spacing);
 
       canvas.drawLine(
-        Offset(x, centerY - barHeight / 2),
-        Offset(x, centerY + barHeight / 2),
+        Offset(x, centerY - barHeight / barHeightValue),
+        Offset(x, centerY + barHeight / barHeightValue),
         paint,
       );
     }

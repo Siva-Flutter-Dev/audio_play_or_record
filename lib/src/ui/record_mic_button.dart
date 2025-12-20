@@ -71,6 +71,9 @@ class RecordMicButton extends StatefulWidget {
   /// Optional custom widget for the send button.
   final Widget? sendIcon;
 
+  /// Optional custom widget for the send button.
+  final Widget? audioDeleteIcon;
+
   /// Radius of the main recording button.
   final double? buttonRadius;
 
@@ -120,6 +123,7 @@ class RecordMicButton extends StatefulWidget {
     this.micIcon,
     this.stopIcon,
     this.sendIcon,
+    this.audioDeleteIcon,
     this.buttonRadius,
     this.primaryColor = Colors.blue,
     this.stopButtonColor = Colors.red,
@@ -375,9 +379,10 @@ class _RecordMicButtonState extends State<RecordMicButton>
               active: widget.runningWave,
               inactive: widget.backgroundWave,
               barWidth: barWidth,
+              barHeightValue: widget.config.barHeight,
               spacing: spacing,
             ),
-            size: Size(availableWidth, 56),
+            size: Size(availableWidth, 20),
           );
         }
       },
@@ -394,7 +399,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
       child: Row(
         spacing: widget.widgetSpacing ?? 12,
         mainAxisAlignment: widget.config.micAlignment,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (widget.leadingIcon != null &&
               _audioController == null &&
@@ -429,7 +434,16 @@ class _RecordMicButtonState extends State<RecordMicButton>
                       children: [
                         // Delete button
                         //if(widget.leadingIcon==null)
-                        IconButton(
+                        widget.audioDeleteIcon!=null
+                        ?GestureDetector(
+                          onTap:_cancel,
+                          child: SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: widget.audioDeleteIcon,
+                          ),
+                        )
+                        :IconButton(
                           icon: Icon(
                             CupertinoIcons.delete,
                             color: widget.stopButtonColor,
@@ -474,7 +488,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
                       ],
                     ),
                   )
-                : SizedBox(height: widget.height, child: widget.textField),
+                : widget.textField,
           ),
           GestureDetector(
             onTap: showSend

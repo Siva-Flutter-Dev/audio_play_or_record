@@ -26,6 +26,9 @@ class RecordButtonConfig {
   /// Optional audio path to prefill or play.
   final String? audioPath;
 
+  /// Optional bar height.
+  final double barHeight;
+
   /// Direction of the waveform animation.
   final WaveDirection waveDirection;
 
@@ -46,6 +49,7 @@ class RecordButtonConfig {
     this.enableHaptics = false,
     this.enableTapRecord = true,
     this.audioPath,
+    this.barHeight=3,
     this.waveDirection = WaveDirection.left,
     this.micAlignment = MainAxisAlignment.spaceBetween,
   });

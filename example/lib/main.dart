@@ -106,7 +106,7 @@ class _HomeSState extends State<HomeS> {
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.width,
           child: RecordMicButton(
-            height: 48,
+            height: 52,
             leadingIcon: Container(
               padding: EdgeInsets.zero,
               decoration: BoxDecoration(
@@ -122,7 +122,7 @@ class _HomeSState extends State<HomeS> {
               });
             },
             onLeading: () {
-              print("object");
+              //print("object");
             },
             onDelete: () {
               setState(() {
@@ -130,19 +130,36 @@ class _HomeSState extends State<HomeS> {
                 ctl.clear();
               });
             },
+            // audioDeleteIcon: Icon(Icons.verified),
             textField: TextField(
               controller: ctl,
+              maxLines: 5,
+              minLines: 1,
               onChanged: (v) {
                 setState(() {});
               },
-              decoration: InputDecoration(border: OutlineInputBorder()),
+              decoration: InputDecoration(
+                // isDense: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(9),
+                    borderSide: BorderSide(color: Colors.black12)
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(9),
+                      borderSide: BorderSide(color: Colors.black12)
+                  )
+              ),
             ),
             buttonRadius: 14,
             textController: ctl,
             isSendEnable: ctl.text.isNotEmpty || audio != null,
             audioPath: audio,
             onMessageSend: () {},
-            config: RecordButtonConfig(enableLock: true, enableHaptics: true),
+            config: RecordButtonConfig(
+                enableLock: true,
+                enableHaptics: true,
+              micAlignment: MainAxisAlignment.end
+            ),
             hasMicPermission: _micGranted,
           ),
         ),
