@@ -154,7 +154,11 @@ class _HomeSState extends State<HomeS> {
             textController: ctl,
             isSendEnable: ctl.text.isNotEmpty || audio != null,
             audioPath: audio,
-            onMessageSend: () {},
+            onMessageSend: () {
+              setState(() {
+                audio = null;
+              });
+            },
             config: RecordButtonConfig(
               enableLock: true,
               enableHaptics: true,

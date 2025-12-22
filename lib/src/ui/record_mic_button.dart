@@ -394,137 +394,135 @@ class _RecordMicButtonState extends State<RecordMicButton>
     final width = MediaQuery.of(context).size.width;
     final showSend = _controller.text.isNotEmpty || widget.isSendEnable;
 
-    return SizedBox(
-      height: widget.height,
-      child: Row(
-        spacing: widget.widgetSpacing ?? 12,
-        mainAxisAlignment: widget.config.micAlignment,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (widget.leadingIcon != null &&
-              _audioController == null &&
-              _state == RecordState.idle)
-            InkWell(
-              splashColor: Colors.transparent,
-              onTap: widget.onLeading,
-              child: Container(
-                width: widget.height,
-                height: widget.height,
-                padding: widget.buttonPadding ?? EdgeInsets.zero,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(
-                    widget.buttonRadius ?? 50,
-                  ),
-                ),
-                child: widget.leadingIcon ?? SizedBox.shrink(),
-              ),
-            ),
-
-          Expanded(
-            child: (_state != RecordState.idle || _audioController != null)
-                ? Container(
-                    width: widget.overlayWidth ?? width * 0.7,
-                    height: widget.height,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: widget.backgroundAudio,
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                    child: Row(
-                      children: [
-                        // Delete button
-                        //if(widget.leadingIcon==null)
-                        widget.audioDeleteIcon != null
-                            ? GestureDetector(
-                                onTap: _cancel,
-                                child: SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: widget.audioDeleteIcon,
-                                ),
-                              )
-                            : IconButton(
-                                icon: Icon(
-                                  CupertinoIcons.delete,
-                                  color: widget.stopButtonColor,
-                                ),
-                                onPressed: _cancel,
-                              ),
-                        // Play/Pause button
-                        if (_audioController != null)
-                          IconButton(
-                            icon: Icon(
-                              _audioController!.isPlaying
-                                  ? Icons.pause
-                                  : Icons.play_arrow,
-                              color: widget.iconWhileRecColor,
-                            ),
-                            onPressed: () {
-                              if (_audioController != null) {
-                                _audioController!.isPlaying
-                                    ? _audioController!.pause()
-                                    : _audioController!.play();
-                              }
-                            },
-                          ),
-                        Expanded(child: _wave()),
-                        Text(
-                          _state == RecordState.recording
-                              ? _format(_duration)
-                              : "${_format(_position)} / ${_format(_total ?? Duration.zero)}",
-                          style: TextStyle(
-                            color: widget.iconWhileRecColor,
-                            fontSize: 12,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Icon(
-                          _state == RecordState.recording
-                              ? Icons.mic
-                              : Icons.volume_up,
-                          color: widget.iconWhileRecColor,
-                          size: 18,
-                        ),
-                      ],
-                    ),
-                  )
-                : widget.textField,
-          ),
-          GestureDetector(
-            onTap: showSend
-                ? widget.onMessageSend
-                : (_state == RecordState.recording ? _stop : _tapStart),
-            onLongPressStart: _startRecord,
-            onLongPressMoveUpdate: _update,
-            onLongPressEnd: (_) {
-              if (_state == RecordState.recording) _stop();
-            },
+    return Row(
+      spacing: widget.widgetSpacing ?? 12,
+      mainAxisAlignment: widget.config.micAlignment,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        if (widget.leadingIcon != null &&
+            _audioController == null &&
+            _state == RecordState.idle)
+          InkWell(
+            splashColor: Colors.transparent,
+            onTap: widget.onLeading,
             child: Container(
               width: widget.height,
               height: widget.height,
               padding: widget.buttonPadding ?? EdgeInsets.zero,
               decoration: BoxDecoration(
-                color: showSend
-                    ? (widget.primaryColor)
-                    : (_state == RecordState.idle
-                          ? (widget.primaryColor)
-                          : (widget.stopButtonColor)),
                 borderRadius: BorderRadius.circular(widget.buttonRadius ?? 50),
               ),
-              child: Center(
-                child: showSend
-                    ? (widget.sendIcon ??
-                          Icon(Icons.send, color: widget.iconColor))
-                    : (_state == RecordState.idle
-                          ? (widget.micIcon ??
-                                Icon(Icons.mic, color: widget.iconColor))
-                          : (widget.stopIcon ??
-                                Icon(Icons.stop, color: widget.iconColor))),
-              ),
+              child: widget.leadingIcon ?? SizedBox.shrink(),
             ),
           ),
-        ],
-      ),
+
+        Expanded(
+          child: (_state != RecordState.idle || _audioController != null)
+              ? Container(
+                  width: widget.overlayWidth ?? width * 0.7,
+                  height: widget.height,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: widget.backgroundAudio,
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  child: Row(
+                    children: [
+                      // Delete button
+                      //if(widget.leadingIcon==null)
+                      widget.audioDeleteIcon != null
+                          ? GestureDetector(
+                              onTap: _cancel,
+                              child: SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: widget.audioDeleteIcon,
+                              ),
+                            )
+                          : IconButton(
+                              icon: Icon(
+                                CupertinoIcons.delete,
+                                color: widget.stopButtonColor,
+                              ),
+                              onPressed: _cancel,
+                            ),
+                      // Play/Pause button
+                      if (_audioController != null)
+                        IconButton(
+                          icon: Icon(
+                            _audioController!.isPlaying
+                                ? Icons.pause
+                                : Icons.play_arrow,
+                            color: widget.iconWhileRecColor,
+                          ),
+                          onPressed: () {
+                            if (_audioController != null) {
+                              _audioController!.isPlaying
+                                  ? _audioController!.pause()
+                                  : _audioController!.play();
+                            }
+                          },
+                        ),
+                      Expanded(child: _wave()),
+                      Text(
+                        _state == RecordState.recording
+                            ? _format(_duration)
+                            : "${_format(_position)} / ${_format(_total ?? Duration.zero)}",
+                        style: TextStyle(
+                          color: widget.iconWhileRecColor,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Icon(
+                        _state == RecordState.recording
+                            ? Icons.mic
+                            : Icons.volume_up,
+                        color: widget.iconWhileRecColor,
+                        size: 18,
+                      ),
+                    ],
+                  ),
+                )
+              : widget.textField,
+        ),
+        GestureDetector(
+          onTap: showSend
+              ? () {
+                  setState(() => _audioController = null);
+                  widget.onMessageSend.call();
+                }
+              : (_state == RecordState.recording ? _stop : _tapStart),
+          onLongPressStart: _startRecord,
+          onLongPressMoveUpdate: _update,
+          onLongPressEnd: (_) {
+            if (_state == RecordState.recording) _stop();
+          },
+          child: Container(
+            width: widget.height,
+            height: widget.height,
+            padding: widget.buttonPadding ?? EdgeInsets.zero,
+            decoration: BoxDecoration(
+              color: showSend
+                  ? (widget.primaryColor)
+                  : (_state == RecordState.idle
+                        ? (widget.primaryColor)
+                        : (widget.stopButtonColor)),
+              borderRadius: BorderRadius.circular(widget.buttonRadius ?? 50),
+            ),
+            child: Center(
+              child: showSend
+                  ? (widget.sendIcon ??
+                        Icon(Icons.send, color: widget.iconColor))
+                  : (_state == RecordState.idle
+                        ? (widget.micIcon ??
+                              Icon(Icons.mic, color: widget.iconColor))
+                        : (widget.stopIcon ??
+                              Icon(Icons.stop, color: widget.iconColor))),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

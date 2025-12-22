@@ -86,3 +86,7 @@ All notable changes to this project are documented in this file.
 ## [1.0.6] - 2025-12-20
 ### Improved
 * Bug Fixed for alignment issue and height issue
+
+## [1.0.7] - 2025-12-22
+### Improved
+* Fixed some alignment issue
