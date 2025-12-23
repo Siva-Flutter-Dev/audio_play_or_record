@@ -62,6 +62,9 @@ class RecordMicButton extends StatefulWidget {
   /// leading icon this optional chat attachment or something
   final VoidCallback? onLeading;
 
+  /// Recording State Analyzer
+  final Function(RecordState)? recordingState;
+
   /// Path of the currently recorded audio file.
   final String? audioPath;
 
@@ -112,6 +115,7 @@ class RecordMicButton extends StatefulWidget {
     required this.onMessageSend,
     required this.onDelete,
     required this.textField,
+    required this.recordingState,
     this.isSendEnable = false,
     this.height = 62,
     this.widgetSpacing,
@@ -245,6 +249,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
     });
 
     setState(() => _state = RecordState.recording);
+    widget.recordingState?.call(_state);
   }
 
   /// Starts recording via tap gesture if enabled.
@@ -267,6 +272,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
         _state == RecordState.recording) {
       _haptic();
       setState(() => _state = RecordState.locked);
+      widget.recordingState?.call(_state);
     }
   }
 
@@ -282,6 +288,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
       _initPlayer(path); // initialize playback immediately
     } else {
       setState(() => _state = RecordState.idle);
+      widget.recordingState?.call(_state);
     }
   }
 
@@ -295,6 +302,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
       widget.onDelete.call();
       _audioController = null;
       _state = RecordState.idle;
+      widget.recordingState?.call(_state);
     });
   }
 
@@ -490,6 +498,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
           onTap: showSend
               ? () {
                   setState(() => _audioController = null);
+                  widget.recordingState?.call(RecordState.idle);
                   widget.onMessageSend.call();
                 }
               : (_state == RecordState.recording ? _stop : _tapStart),

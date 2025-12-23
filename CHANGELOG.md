@@ -90,3 +90,7 @@ All notable changes to this project are documented in this file.
 ## [1.0.7] - 2025-12-22
 ### Improved
 * Fixed some alignment issue
+
+## [1.0.8] - 2025-12-23
+### Improved
+* Bug Fixes

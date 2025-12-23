@@ -107,6 +107,7 @@ class _HomeSState extends State<HomeS> {
           height: MediaQuery.of(context).size.width,
           child: RecordMicButton(
             height: 52,
+            recordingState: (v) {},
             leadingIcon: Container(
               padding: EdgeInsets.zero,
               decoration: BoxDecoration(
