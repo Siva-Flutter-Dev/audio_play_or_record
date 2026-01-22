@@ -36,6 +36,9 @@ class RecordMicButton extends StatefulWidget {
   /// Configuration for recording behavior, haptics, locking, and animations.
   final RecordButtonConfig config;
 
+  /// Mic button click finder
+  final Function(bool)? recordFinder;
+
   /// Callback executed when recording is finished.
   ///
   /// [path] is the path of the recorded audio file.
@@ -119,6 +122,7 @@ class RecordMicButton extends StatefulWidget {
     this.isSendEnable = false,
     this.height = 62,
     this.widgetSpacing,
+    this.recordFinder,
     this.config = const RecordButtonConfig(),
     this.overlayWidth,
     this.textController,
@@ -256,6 +260,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
   Future<void> _tapStart() async {
     if (!widget.config.enableTapRecord || _state != RecordState.idle) return;
     await _startRecord(LongPressStartDetails(globalPosition: Offset.zero));
+    widget.recordFinder?.call(true);
   }
 
   /// Handles gesture updates for cancel or lock actions.
@@ -290,6 +295,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
       setState(() => _state = RecordState.idle);
       widget.recordingState?.call(_state);
     }
+    widget.recordFinder?.call(false);
   }
 
   /// Cancels the recording and triggers the onDelete callback.
@@ -303,6 +309,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
       _audioController = null;
       _state = RecordState.idle;
       widget.recordingState?.call(_state);
+      widget.recordFinder?.call(false);
     });
   }
 
