@@ -163,6 +163,8 @@ class _HomeSState extends State<HomeS> {
             config: RecordButtonConfig(
               enableLock: true,
               enableHaptics: true,
+              isAudioEnable: false,
+              isHideSendButton: true,
               micAlignment: MainAxisAlignment.end,
             ),
             hasMicPermission: _micGranted,

@@ -98,3 +98,4 @@ All notable changes to this project are documented in this file.
 ## [1.0.9] - 2026-01-22
 ### Improved
 * Extra Property added for finding audio click
+* Extra button hide and audio non mandatory properties added in config

@@ -26,6 +26,12 @@ class RecordButtonConfig {
   /// Optional audio path to prefill or play.
   final String? audioPath;
 
+  /// Audio button is Enable
+  final bool isAudioEnable;
+
+  /// Hide Send Button
+  final bool isHideSendButton;
+
   /// Optional bar height.
   final double barHeight;
 
@@ -48,6 +54,8 @@ class RecordButtonConfig {
     this.enableLock = false,
     this.enableHaptics = false,
     this.enableTapRecord = true,
+    this.isAudioEnable = true,
+    this.isHideSendButton = false,
     this.audioPath,
     this.barHeight = 3,
     this.waveDirection = WaveDirection.left,

@@ -222,9 +222,9 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                         horizontal: bubblePaddingHorizontal,
                         vertical: bubblePaddingVertical,
                       ).copyWith(
-                        right:
-                            bubblePaddingHorizontal +
-                            avatarSize, // space for avatar
+                        right: widget.isProfile
+                            ? bubblePaddingHorizontal + avatarSize
+                            : bubblePaddingHorizontal + 4,
                       ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -232,20 +232,30 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                     children: [
                       // Row: Play button + waveform + optional avatar
                       Row(
+                        spacing: 2,
                         children: [
                           // Play / Pause button
-                          IconButton(
-                            icon: Icon(
-                              _player.isPlaying
-                                  ? Icons.pause
-                                  : Icons.play_arrow,
-                              size: screenWidth * 0.07,
-                              color: widget.iconColor,
-                            ),
-                            onPressed: () => _player.isPlaying
-                                ? _player.pause()
-                                : _player.play(),
-                          ),
+                          _amps.isNotEmpty
+                              ? IconButton(
+                                  icon: Icon(
+                                    _player.isPlaying
+                                        ? Icons.pause
+                                        : Icons.play_arrow,
+                                    size: screenWidth * 0.07,
+                                    color: widget.iconColor,
+                                  ),
+                                  onPressed: () => _player.isPlaying
+                                      ? _player.pause()
+                                      : _player.play(),
+                                )
+                              : Container(
+                                  margin: EdgeInsets.only(right: 8),
+                                  height: screenWidth * 0.05,
+                                  width: screenWidth * 0.05,
+                                  child: CircularProgressIndicator(
+                                    color: widget.config.activeWaveColor,
+                                  ),
+                                ),
 
                           // Waveform display
                           Expanded(
@@ -309,7 +319,58 @@ class _WhatsAppAudioMessageState extends State<AudioMessage> {
                                     );
                                   }
 
-                                  return const SizedBox.shrink();
+                                  return CustomPaint(
+                                    size: Size(availableWidth, 3),
+                                    painter: WaveformPainter(
+                                      amplitudes: [
+                                        0.0,
+                                        0.1,
+                                        0.3,
+                                        0.1,
+                                        0.4,
+                                        0.2,
+                                        0.3,
+                                        0.1,
+                                        0.3,
+                                        0.1,
+                                        0.0,
+                                        0.2,
+                                        0.0,
+                                        0.1,
+                                        0.3,
+                                        0.1,
+                                        0.0,
+                                        0.2,
+                                        0.3,
+                                        0.1,
+                                        0.4,
+                                        0.2,
+                                        0.3,
+                                        0.1,
+                                        0.3,
+                                        0.3,
+                                        0.1,
+                                        0.4,
+                                        0.2,
+                                        0.3,
+                                        0.1,
+                                        0.3,
+                                        0.3,
+                                        0.1,
+                                        0.4,
+                                        0.2,
+                                        0.3,
+                                        0.1,
+                                        0.3,
+                                      ],
+                                      progress: 0.0,
+                                      active: widget.config.activeWaveColor,
+                                      inactive: widget.config.inactiveWaveColor,
+                                      barWidth: barWidth,
+                                      barHeightValue: widget.config.barHeight,
+                                      spacing: spacing,
+                                    ),
+                                  );
                                 },
                               ),
                             ),

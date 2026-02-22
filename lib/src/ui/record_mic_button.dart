@@ -494,44 +494,116 @@ class _RecordMicButtonState extends State<RecordMicButton>
                 )
               : widget.textField,
         ),
-        GestureDetector(
-          onTap: showSend
-              ? () {
-                  setState(() => _audioController = null);
-                  widget.recordingState?.call(RecordState.idle);
-                  widget.onMessageSend.call();
-                }
-              : (_state == RecordState.recording ? _stop : _tapStart),
-          onLongPressStart: _startRecord,
-          onLongPressMoveUpdate: _update,
-          onLongPressEnd: (_) {
-            if (_state == RecordState.recording) _stop();
-          },
-          child: Container(
-            width: widget.height,
-            height: widget.height,
-            padding: widget.buttonPadding ?? EdgeInsets.zero,
-            decoration: BoxDecoration(
-              color: showSend
-                  ? (widget.primaryColor)
-                  : (_state == RecordState.idle
-                        ? (widget.primaryColor)
-                        : (widget.stopButtonColor)),
-              borderRadius: BorderRadius.circular(widget.buttonRadius ?? 50),
-            ),
-            child: Center(
-              child: showSend
-                  ? (widget.sendIcon ??
-                        Icon(Icons.send, color: widget.iconColor))
-                  : (_state == RecordState.idle
-                        ? (widget.micIcon ??
-                              Icon(Icons.mic, color: widget.iconColor))
-                        : (widget.stopIcon ??
-                              Icon(Icons.stop, color: widget.iconColor))),
-            ),
+        if (!widget.config.isAudioEnable)
+          widget.config.isHideSendButton
+              ? AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  transitionBuilder: (child, animation) => ScaleTransition(
+                    scale: animation,
+                    child: FadeTransition(opacity: animation, child: child),
+                  ),
+                  child: showSend
+                      ? GestureDetector(
+                          key: const ValueKey('send_visible'),
+                          onTap: widget.onMessageSend,
+                          child: _buildSendButton(showSend: showSend),
+                        )
+                      : const SizedBox(key: ValueKey('send_hidden')),
+                )
+              : GestureDetector(
+                  key: const ValueKey('send_visible'),
+                  onTap: widget.onMessageSend,
+                  child: _buildSendButton(showSend: showSend, isSend: true),
+                )
+        else
+          GestureDetector(
+            onTap: showSend
+                ? () {
+                    setState(() => _audioController = null);
+                    widget.recordingState?.call(RecordState.idle);
+                    widget.onMessageSend.call();
+                  }
+                : (_state == RecordState.recording ? _stop : _tapStart),
+            onLongPressStart: _startRecord,
+            onLongPressMoveUpdate: _update,
+            onLongPressEnd: (_) {
+              if (_state == RecordState.recording) _stop();
+            },
+            child: _buildSendButton(showSend: showSend),
+            // Container(
+            //   width: widget.height,
+            //   height: widget.height,
+            //   padding: widget.buttonPadding ?? EdgeInsets.zero,
+            //   decoration: BoxDecoration(
+            //     color: showSend
+            //         ? (widget.primaryColor)
+            //         : (_state == RecordState.idle
+            //         ? (widget.primaryColor)
+            //         : (widget.stopButtonColor)),
+            //     borderRadius: BorderRadius.circular(widget.buttonRadius ?? 50),
+            //   ),
+            //   child: Center(
+            //     child: showSend
+            //         ? (widget.sendIcon ??
+            //         Icon(Icons.send, color: widget.iconColor))
+            //         : (_state == RecordState.idle
+            //         ? (widget.micIcon ??
+            //         Icon(Icons.mic, color: widget.iconColor))
+            //         : (widget.stopIcon ??
+            //         Icon(Icons.stop, color: widget.iconColor))),
+            //   ),
+            // ),
           ),
-        ),
       ],
+    );
+  }
+
+  /// SEND BUTTON
+  Widget _buildSendButton({required bool showSend, bool isSend = false}) {
+    return Container(
+      width: widget.height,
+      height: widget.height,
+      padding: widget.buttonPadding ?? EdgeInsets.zero,
+      decoration: BoxDecoration(
+        color: showSend
+            ? (widget.primaryColor)
+            : (_state == RecordState.idle
+                  ? (widget.primaryColor)
+                  : (widget.stopButtonColor)),
+        borderRadius: BorderRadius.circular(widget.buttonRadius ?? 50),
+      ),
+      child: Center(
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: isSend
+              ? (widget.sendIcon ??
+                    Icon(
+                      Icons.send,
+                      key: const ValueKey('send'),
+                      color: widget.iconColor,
+                    ))
+              : showSend
+              ? (widget.sendIcon ??
+                    Icon(
+                      Icons.send,
+                      key: const ValueKey('send'),
+                      color: widget.iconColor,
+                    ))
+              : (_state == RecordState.idle
+                    ? (widget.micIcon ??
+                          Icon(
+                            Icons.mic,
+                            key: const ValueKey('mic'),
+                            color: widget.iconColor,
+                          ))
+                    : (widget.stopIcon ??
+                          Icon(
+                            Icons.stop,
+                            key: const ValueKey('stop'),
+                            color: widget.iconColor,
+                          ))),
+        ),
+      ),
     );
   }
 }
