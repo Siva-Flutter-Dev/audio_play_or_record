@@ -400,7 +400,7 @@ class _RecordMicButtonState extends State<RecordMicButton>
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final showSend = _controller.text.isNotEmpty || widget.isSendEnable;
+    final showSend = _controller.text.trim().isNotEmpty || widget.isSendEnable;
 
     return Row(
       spacing: widget.widgetSpacing ?? 12,
