@@ -27,14 +27,14 @@ keywords:
   - ui
 
 environment:
-  sdk: ^3.10.1
-  flutter: ">=1.17.0"
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.38.0'
 
 dependencies:
   flutter:
     sdk: flutter
 
-  record: ^6.1.2
+  record: ^7.1.1
   just_audio: ^0.10.5
   just_waveform: ^0.0.7
   path_provider: ^2.1.2

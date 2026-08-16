@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.1.1] - 2026-08-16
+### Improved
+* Updated minimum supported Dart SDK to `3.10.0`.
+* Updated minimum supported Flutter version to `3.38.0`.
+* Updated package dependencies to their latest compatible versions.
+* Updated Android build configuration and Gradle dependencies to support the latest Flutter/Android toolchain.
+* Improved compatibility with modern Flutter and Dart versions.
+
+### Improved
+* Updated project configuration for the latest Flutter and Dart ecosystem.
+* Improved Android build compatibility.
+* Updated dependency constraints and build configuration.
+* Minor maintenance and compatibility improvements.
+
 ## [1.0.10] - 2026-04-21
 ### Improved
 * Bug Fixes
