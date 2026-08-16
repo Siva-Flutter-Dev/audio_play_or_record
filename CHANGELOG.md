@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented in this file.
 
-## [1.1.1] - 2026-08-16
+## [1.1.0] - 2026-08-16
 ### Improved
 * Updated minimum supported Dart SDK to `3.10.0`.
 * Updated minimum supported Flutter version to `3.38.0`.
